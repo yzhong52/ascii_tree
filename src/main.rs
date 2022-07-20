@@ -1,4 +1,8 @@
+extern crate itertools;
+use clap::Parser;
+use itertools::Itertools;
 use std::cmp::max;
+use std::fs;
 
 struct BoxDrawings {
     up_and_left: char,
@@ -227,21 +231,62 @@ impl DrawableTreeNode {
     }
 }
 
+#[derive(Parser, Debug)]
+#[clap(author, version, about)]
+struct Args {
+    /// The input filename
+    #[clap(short, long, value_parser)]
+    input: String,
+}
+
+fn parse(filename: String) -> TreeNode {
+    let contents = fs::read_to_string(filename).expect("Fail to read input file");
+
+    let lines: Vec<&str> = contents.split("\n").collect();
+
+    let mut root = TreeNode {
+        label: lines[0].to_string(),
+        children: vec![],
+    };
+
+    let mut stack: Vec<&mut TreeNode> = vec![&mut root];
+
+    for i in 1..lines.len() {
+        let line = lines[i];
+
+        // e.g. `["#", "Child 1"]`, or `["##", "Grandchild 1"]`
+        let grouped_parts: Vec<String> = line
+            .to_string()
+            .chars()
+            .group_by(|&x| x == '#')
+            .into_iter()
+            .map(|(_, r)| r.collect())
+            .collect();
+
+        let depth = grouped_parts[0].len();
+
+        while depth < stack.len() {
+            &stack.pop();
+        }
+
+        let node = TreeNode {
+            label: grouped_parts[1].to_string(),
+            children: vec![],
+        };
+
+        // TODO: Yuchen - how do we push the node?
+        stack.push(&mut node);
+
+        stack.last_mut().unwrap().children.push(node);
+    }
+
+    root
+}
+
 fn main() {
-    let child1 = TreeNode {
-        label: "Child 1".to_string(),
-        children: Vec::new(),
-    };
+    let args = Args::parse();
 
-    let child2 = TreeNode {
-        label: "Child 2".to_string(),
-        children: Vec::new(),
-    };
-
-    let root = TreeNode {
-        label: "Root".to_string(),
-        children: vec![child1, child2],
-    };
+    let root = parse(args.input);
 
     let drawable_root = root.to_drawable();
 
