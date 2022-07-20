@@ -167,24 +167,56 @@ impl DrawableTreeNode {
                         + HORIZONTAL_CHILDREN_BUFFER
                         + self.children[child_id + 1].center_x;
                     for x in start..end {
-                        buffer[origin.y + self.height][x] = DEFAULT_STYLE.horizontal;
+                        if x != origin.x + self.center_x {
+                            buffer[origin.y + self.height][x] = DEFAULT_STYLE.horizontal;
+                        } else {
+                            //         ┌──────┐
+                            //         │ Root │
+                            //         └──┬───┘
+                            //      ┌─────╩──────┐
+                            // ┌────┴────┐↑ ┌────┴────┐
+                            // │ Child 1 │  │ Child 2 │
+                            // └─────────┘  └─────────┘
+                            buffer[origin.y + self.height][x] = DEFAULT_STYLE.up_and_horizontal;
+                        }
                     }
                     if child_id == 0 {
                         //         ┌──────┐
                         //         │ Root │
                         //         └──┬───┘
-                        //      ┌─────┴─────┐
-                        //  ╔───┴────┐ ┌────┴─────┐
-                        //  │ Chid 1 │ │ Child 32 │
-                        //  └────────┘ └──────────┘
+                        //    ->╔─────┴──────┐
+                        // ┌────┴────┐  ┌────┴────┐
+                        // │ Child 1 │  │ Child 2 │
+                        // └─────────┘  └─────────┘
                         buffer[origin.y + self.height][start - 1] = DEFAULT_STYLE.up_and_left;
                     }
 
                     if child_id == self.children.len() - 2 {
+                        //         ┌──────┐
+                        //         │ Root │
+                        //         └──┬───┘
+                        //      ┌─────┴──────╗<-
+                        // ┌────┴────┐  ┌────┴────┐
+                        // │ Child 1 │  │ Child 2 │
+                        // └─────────┘  └─────────┘
                         buffer[origin.y + self.height][end] = DEFAULT_STYLE.up_and_right;
                     } else if end == origin.x + self.center_x {
+                        //                 ┌──────┐
+                        //                 │ Root │
+                        //                 └──┬───┘
+                        //       ┌────────────╬────────────┐
+                        //  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐
+                        //  │ Child 1 │  │ Child 2 │  │ Child 3 │
+                        //  └─────────┘  └─────────┘  └─────────┘
                         buffer[origin.y + self.height][end] = DEFAULT_STYLE.vertical_and_horizontal;
                     } else {
+                        //                         ┌──────┐
+                        //                         │ Root │
+                        //                      ↓  └──┬───┘  ↓
+                        //         ┌────────────╦─────┴──────╦────────────┐
+                        //    ┌────┴────┐  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐
+                        //    │ Child 1 │  │ Child 2 │  │ Child 3 │  │ Child 4 │
+                        //    └─────────┘  └─────────┘  └─────────┘  └─────────┘
                         buffer[origin.y + self.height][end] = DEFAULT_STYLE.down_and_horizontal;
                     }
 
@@ -196,8 +228,6 @@ impl DrawableTreeNode {
 }
 
 fn main() {
-    println!("Hello, world!");
-
     let child1 = TreeNode {
         label: "Child 1".to_string(),
         children: Vec::new(),
@@ -207,14 +237,10 @@ fn main() {
         label: "Child 2".to_string(),
         children: Vec::new(),
     };
-    let child3 = TreeNode {
-        label: "Child 3".to_string(),
-        children: Vec::new(),
-    };
 
     let root = TreeNode {
         label: "Root".to_string(),
-        children: vec![child1, child2, child3],
+        children: vec![child1, child2],
     };
 
     let drawable_root = root.to_drawable();
