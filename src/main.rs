@@ -54,14 +54,22 @@ static VERTICAL_LAYER_BUFFER: usize = 1;
 
 impl TreeNode {
     fn to_drawable(&self) -> DrawableTreeNode {
+        // A space on both side, and two vertical bars, i.e.:
+        // ┌──────┐
+        // │ Root │
+        // └──────┘
+        // ↑↑    ↑↑
+        // 12    34
+        let node_width = self.label.len() + 4;
+        let node_height = 3;
+
         let drawable_children: Vec<DrawableTreeNode> =
             self.children.iter().map(|x| x.to_drawable()).collect();
 
         let children_width: usize = if self.children.len() == 0 {
             0
         } else {
-            // We put all the children next to each other, with some space (HORIZONTAL_CHILDREN_BUFFER)
-            // in between
+            // We put all the children next to each other, with some space in between
             drawable_children
                 .iter()
                 .map(|child| child.width)
@@ -69,25 +77,16 @@ impl TreeNode {
                 + (self.children.len() - 1) * HORIZONTAL_CHILDREN_BUFFER
         };
 
-        let children_height: usize = drawable_children
-            .iter()
-            .map(|child| child.height)
-            .max()
-            .unwrap_or(0);
-
-        // A space on both side, and two vertical bars, i.e.:
-        // ┌──────┐
-        // │ Root │
-        // └──────┘
-        // ^^    ^^
-        // 12    34
-        let node_width = self.label.len() + 4;
-        let node_height = 3;
-
         let overall_width = max(node_width, children_width);
-        let overall_height = if children_height == 0 {
+        let overall_height = if self.children.len() == 0 {
             node_height
         } else {
+            let children_height: usize = drawable_children
+                .iter()
+                .map(|child| child.height)
+                .max()
+                .unwrap_or(0);
+
             node_height + children_height + VERTICAL_LAYER_BUFFER
         };
 
@@ -98,10 +97,11 @@ impl TreeNode {
                 (first.center_x + children_width - last.width + last.center_x) / 2
             }
             _ => {
-                //    ┌--┴---┐
+                //    ┌------┐
                 //    │      │
-                //    └--┳┳--┘
-                //    012345678
+                //    └------┘
+                //       ↑↑
+                //    01234567
                 // When node_width is even (e.g. 8), we have two options (position 3 & 4 above).
                 // We choose to put the center closer to the left (position 3 above).
                 (node_width - 1) / 2
