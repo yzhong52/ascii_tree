@@ -81,7 +81,7 @@ impl TreeNode {
             // We put all the children next to each other, with some space in between
             drawable_children
                 .iter()
-                .map(|child| child.width)
+                .map(|child| child.overall_width)
                 .sum::<usize>()
                 + (self.children.len() - 1) * HORIZONTAL_CHILDREN_BUFFER
         };
@@ -92,18 +92,22 @@ impl TreeNode {
         } else {
             let children_height: usize = drawable_children
                 .iter()
-                .map(|child| child.height)
+                .map(|child| child.overall_height)
                 .max()
                 .unwrap_or(0);
 
-            node_height + children_height + VERTICAL_LAYER_BUFFER
+            if self.children.len() == 1 {
+                node_height + children_height
+            } else {
+                node_height + children_height + VERTICAL_LAYER_BUFFER
+            }
         };
 
         let center_x = match (drawable_children.first(), drawable_children.last()) {
             (Some(first), Some(last)) => {
                 // If there are children, let's put the current node to middle of
                 // all the children.
-                (first.center_x + children_width - last.width + last.center_x) / 2
+                (first.center_x + children_width - last.overall_width + last.center_x) / 2
             }
             _ => {
                 //    ┌------┐
@@ -160,10 +164,34 @@ impl DrawableTreeNode {
             buffer[origin.y + self.height - 1][origin.x + self.center_x] =
                 DEFAULT_STYLE.down_and_horizontal;
 
-            let mut child_origin = Point2D {
-                x: origin.x,
-                y: origin.y + self.height + VERTICAL_LAYER_BUFFER,
-            };
+            let mut child_origin: Point2D<usize>;
+
+            if self.children.len() > 1 {
+                // With single children, no vertical buffer needed.
+                //     ┌──────┐
+                //     │ Root │
+                //     └──┬───┘
+                //   ┌────┴────┐
+                //   │ Child 1 │
+                //   └─────────┘
+                child_origin = Point2D {
+                    x: origin.x,
+                    y: origin.y + self.height + VERTICAL_LAYER_BUFFER,
+                };
+            } else {
+                // More than 1 direct children, vertical buffer needed.
+                //         ┌──────┐
+                //         │ Root │
+                //         └──┬───┘
+                //      ┌─────┴──────┐<- VERTICAL_LAYER_BUFFER
+                // ┌────┴────┐  ┌────┴────┐
+                // │ Child 1 │  │ Child 2 │
+                // └─────────┘  └─────────┘
+                child_origin = Point2D {
+                    x: origin.x,
+                    y: origin.y + self.height,
+                };
+            }
 
             for child_id in 0..self.children.len() {
                 let child = &self.children[child_id];
