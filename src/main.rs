@@ -167,18 +167,6 @@ impl DrawableTreeNode {
             let mut child_origin: Point2D<usize>;
 
             if self.children.len() > 1 {
-                // With single children, no vertical buffer needed.
-                //     ┌──────┐
-                //     │ Root │
-                //     └──┬───┘
-                //   ┌────┴────┐
-                //   │ Child 1 │
-                //   └─────────┘
-                child_origin = Point2D {
-                    x: origin.x,
-                    y: origin.y + self.height + VERTICAL_LAYER_BUFFER,
-                };
-            } else {
                 // More than 1 direct children, vertical buffer needed.
                 //         ┌──────┐
                 //         │ Root │
@@ -187,6 +175,18 @@ impl DrawableTreeNode {
                 // ┌────┴────┐  ┌────┴────┐
                 // │ Child 1 │  │ Child 2 │
                 // └─────────┘  └─────────┘
+                child_origin = Point2D {
+                    x: origin.x,
+                    y: origin.y + self.height + VERTICAL_LAYER_BUFFER,
+                };
+            } else {
+                // With single children, no vertical buffer needed.
+                //     ┌──────┐
+                //     │ Root │
+                //     └──┬───┘
+                //   ┌────┴────┐
+                //   │ Child 1 │
+                //   └─────────┘
                 child_origin = Point2D {
                     x: origin.x,
                     y: origin.y + self.height,
