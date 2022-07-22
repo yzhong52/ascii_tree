@@ -1,8 +1,10 @@
 extern crate itertools;
 use clap::Parser;
 use itertools::Itertools;
+use std::cell::RefCell;
 use std::cmp::max;
 use std::fs;
+use std::rc::Rc;
 
 struct BoxDrawings {
     up_and_left: char,
@@ -36,7 +38,7 @@ pub struct Point2D<T> {
 #[derive(Debug)]
 struct TreeNode {
     label: String,
-    children: Vec<TreeNode>,
+    children: Vec<Rc<RefCell<TreeNode>>>,
 }
 #[derive(Debug)]
 struct DrawableTreeNode {
@@ -67,8 +69,11 @@ impl TreeNode {
         let node_width = self.label.len() + 4;
         let node_height = 3;
 
-        let drawable_children: Vec<DrawableTreeNode> =
-            self.children.iter().map(|x| x.to_drawable()).collect();
+        let drawable_children: Vec<DrawableTreeNode> = self
+            .children
+            .iter()
+            .map(|x| x.borrow().to_drawable())
+            .collect();
 
         let children_width: usize = if self.children.len() == 0 {
             0
@@ -239,17 +244,17 @@ struct Args {
     input: String,
 }
 
-fn parse(filename: String) -> TreeNode {
+fn parse(filename: String) -> Rc<RefCell<TreeNode>> {
     let contents = fs::read_to_string(filename).expect("Fail to read input file");
 
     let lines: Vec<&str> = contents.split("\n").collect();
 
-    let mut root = TreeNode {
+    let root = Rc::new(RefCell::new(TreeNode {
         label: lines[0].to_string(),
         children: vec![],
-    };
+    }));
 
-    let mut stack: Vec<&mut TreeNode> = vec![&mut root];
+    let mut stack: Vec<Rc<RefCell<TreeNode>>> = vec![root.clone()];
 
     for i in 1..lines.len() {
         let line = lines[i];
@@ -266,7 +271,7 @@ fn parse(filename: String) -> TreeNode {
         let depth = grouped_parts[0].len();
 
         while depth < stack.len() {
-            &stack.pop();
+            let _ = &stack.pop();
         }
 
         let node = TreeNode {
@@ -274,12 +279,16 @@ fn parse(filename: String) -> TreeNode {
             children: vec![],
         };
 
-        // TODO: Yuchen - how do we push the node?
-        stack.push(&mut node);
+        let new_child = Rc::new(RefCell::new(node));
 
-        stack.last_mut().unwrap().children.push(node);
+        stack
+            .last()
+            .unwrap()
+            .borrow_mut()
+            .children
+            .push(new_child.clone());
+        stack.push(new_child);
     }
-
     root
 }
 
@@ -288,7 +297,7 @@ fn main() {
 
     let root = parse(args.input);
 
-    let drawable_root = root.to_drawable();
+    let drawable_root = root.borrow().to_drawable();
 
     let mut array: Vec<Vec<char>> =
         vec![vec![' '; drawable_root.overall_width]; drawable_root.overall_height];
