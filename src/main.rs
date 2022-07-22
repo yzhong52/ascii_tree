@@ -1,4 +1,10 @@
+extern crate itertools;
+use clap::Parser;
+use itertools::Itertools;
+use std::cell::RefCell;
 use std::cmp::max;
+use std::fs;
+use std::rc::Rc;
 
 struct BoxDrawings {
     up_and_left: char,
@@ -32,7 +38,7 @@ pub struct Point2D<T> {
 #[derive(Debug)]
 struct TreeNode {
     label: String,
-    children: Vec<TreeNode>,
+    children: Vec<Rc<RefCell<TreeNode>>>,
 }
 #[derive(Debug)]
 struct DrawableTreeNode {
@@ -63,8 +69,11 @@ impl TreeNode {
         let node_width = self.label.len() + 4;
         let node_height = 3;
 
-        let drawable_children: Vec<DrawableTreeNode> =
-            self.children.iter().map(|x| x.to_drawable()).collect();
+        let drawable_children: Vec<DrawableTreeNode> = self
+            .children
+            .iter()
+            .map(|x| x.borrow().to_drawable())
+            .collect();
 
         let children_width: usize = if self.children.len() == 0 {
             0
@@ -72,7 +81,7 @@ impl TreeNode {
             // We put all the children next to each other, with some space in between
             drawable_children
                 .iter()
-                .map(|child| child.width)
+                .map(|child| child.overall_width)
                 .sum::<usize>()
                 + (self.children.len() - 1) * HORIZONTAL_CHILDREN_BUFFER
         };
@@ -83,18 +92,22 @@ impl TreeNode {
         } else {
             let children_height: usize = drawable_children
                 .iter()
-                .map(|child| child.height)
+                .map(|child| child.overall_height)
                 .max()
                 .unwrap_or(0);
 
-            node_height + children_height + VERTICAL_LAYER_BUFFER
+            if self.children.len() == 1 {
+                node_height + children_height
+            } else {
+                node_height + children_height + VERTICAL_LAYER_BUFFER
+            }
         };
 
         let center_x = match (drawable_children.first(), drawable_children.last()) {
             (Some(first), Some(last)) => {
                 // If there are children, let's put the current node to middle of
                 // all the children.
-                (first.center_x + children_width - last.width + last.center_x) / 2
+                (first.center_x + children_width - last.overall_width + last.center_x) / 2
             }
             _ => {
                 //    ┌------┐
@@ -151,10 +164,34 @@ impl DrawableTreeNode {
             buffer[origin.y + self.height - 1][origin.x + self.center_x] =
                 DEFAULT_STYLE.down_and_horizontal;
 
-            let mut child_origin = Point2D {
-                x: origin.x,
-                y: origin.y + self.height + VERTICAL_LAYER_BUFFER,
-            };
+            let mut child_origin: Point2D<usize>;
+
+            if self.children.len() > 1 {
+                // More than 1 direct children, vertical buffer needed.
+                //         ┌──────┐
+                //         │ Root │
+                //         └──┬───┘
+                //      ┌─────┴──────┐<- VERTICAL_LAYER_BUFFER
+                // ┌────┴────┐  ┌────┴────┐
+                // │ Child 1 │  │ Child 2 │
+                // └─────────┘  └─────────┘
+                child_origin = Point2D {
+                    x: origin.x,
+                    y: origin.y + self.height + VERTICAL_LAYER_BUFFER,
+                };
+            } else {
+                // With single children, no vertical buffer needed.
+                //     ┌──────┐
+                //     │ Root │
+                //     └──┬───┘
+                //   ┌────┴────┐
+                //   │ Child 1 │
+                //   └─────────┘
+                child_origin = Point2D {
+                    x: origin.x,
+                    y: origin.y + self.height,
+                };
+            }
 
             for child_id in 0..self.children.len() {
                 let child = &self.children[child_id];
@@ -227,23 +264,68 @@ impl DrawableTreeNode {
     }
 }
 
+#[derive(Parser, Debug)]
+#[clap(author, version, about)]
+struct Args {
+    /// The input filename
+    #[clap(short, long, value_parser)]
+    input: String,
+}
+
+fn parse(filename: String) -> Rc<RefCell<TreeNode>> {
+    let contents = fs::read_to_string(filename).expect("Fail to read input file");
+
+    let lines: Vec<&str> = contents.split("\n").collect();
+
+    let root = Rc::new(RefCell::new(TreeNode {
+        label: lines[0].to_string(),
+        children: vec![],
+    }));
+
+    let mut stack: Vec<Rc<RefCell<TreeNode>>> = vec![root.clone()];
+
+    for i in 1..lines.len() {
+        let line = lines[i];
+
+        // e.g. `["#", "Child 1"]`, or `["##", "Grandchild 1"]`
+        let grouped_parts: Vec<String> = line
+            .to_string()
+            .chars()
+            .group_by(|&x| x == '#')
+            .into_iter()
+            .map(|(_, r)| r.collect())
+            .collect();
+
+        let depth = grouped_parts[0].len();
+
+        while depth < stack.len() {
+            let _ = &stack.pop();
+        }
+
+        let node = TreeNode {
+            label: grouped_parts[1].to_string(),
+            children: vec![],
+        };
+
+        let new_child = Rc::new(RefCell::new(node));
+
+        stack
+            .last()
+            .unwrap()
+            .borrow_mut()
+            .children
+            .push(new_child.clone());
+        stack.push(new_child);
+    }
+    root
+}
+
 fn main() {
-    let child1 = TreeNode {
-        label: "Child 1".to_string(),
-        children: Vec::new(),
-    };
+    let args = Args::parse();
 
-    let child2 = TreeNode {
-        label: "Child 2".to_string(),
-        children: Vec::new(),
-    };
+    let root = parse(args.input);
 
-    let root = TreeNode {
-        label: "Root".to_string(),
-        children: vec![child1, child2],
-    };
-
-    let drawable_root = root.to_drawable();
+    let drawable_root = root.borrow().to_drawable();
 
     let mut array: Vec<Vec<char>> =
         vec![vec![' '; drawable_root.overall_width]; drawable_root.overall_height];
