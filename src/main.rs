@@ -1,15 +1,14 @@
 extern crate itertools;
+
+use crate::parser::parse;
 use crate::tree::drawable::DrawableTreeNode;
 use crate::tree::style::BoxDrawings;
-use crate::tree::tree_node::TreeNode;
 use clap::Parser;
-use itertools::Itertools;
-use std::cell::RefCell;
-use std::fs;
-use std::rc::Rc;
-pub mod tree;
 
-const DEFAULT_STYLE: BoxDrawings = BoxDrawings {
+mod parser;
+mod tree;
+
+const THIN: BoxDrawings = BoxDrawings {
     up_and_left: '┌',
     up_and_right: '┐',
     down_and_left: '└',
@@ -29,55 +28,6 @@ struct Args {
     input: String,
 }
 
-fn parse(filename: String) -> Rc<RefCell<TreeNode>> {
-    let contents = fs::read_to_string(filename.clone())
-        .expect(format!("Fail to read input file {}", filename).as_str());
-
-    let lines: Vec<&str> = contents.split("\n").collect();
-
-    let root = Rc::new(RefCell::new(TreeNode {
-        label: lines[0].to_string(),
-        children: vec![],
-    }));
-
-    let mut stack: Vec<Rc<RefCell<TreeNode>>> = vec![root.clone()];
-
-    for i in 1..lines.len() {
-        let line = lines[i];
-
-        // e.g. `["#", "Child 1"]`, or `["##", "Grandchild 1"]`
-        let grouped_parts: Vec<String> = line
-            .to_string()
-            .chars()
-            .group_by(|&x| x == '#')
-            .into_iter()
-            .map(|(_, r)| r.collect())
-            .collect();
-
-        let depth = grouped_parts[0].len();
-
-        while depth < stack.len() {
-            let _ = &stack.pop();
-        }
-
-        let node = TreeNode {
-            label: grouped_parts[1].to_string(),
-            children: vec![],
-        };
-
-        let new_child = Rc::new(RefCell::new(node));
-
-        stack
-            .last()
-            .unwrap()
-            .borrow_mut()
-            .children
-            .push(new_child.clone());
-        stack.push(new_child);
-    }
-    root
-}
-
 fn main() {
     let args = Args::parse();
 
@@ -85,11 +35,11 @@ fn main() {
 
     let drawable_root = DrawableTreeNode::new(root.borrow());
 
-    let mut array: Vec<Vec<char>> =
+    let mut canvas: Vec<Vec<char>> =
         vec![vec![' '; drawable_root.overall_width]; drawable_root.overall_height];
 
-    drawable_root.render(&mut array, DEFAULT_STYLE);
-    let result = array
+    drawable_root.render(&mut canvas, THIN);
+    let result = canvas
         .iter()
         .map(|row| row.iter().collect())
         .collect::<Vec<String>>()
