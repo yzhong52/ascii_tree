@@ -12,10 +12,7 @@ pub fn parse(filename: String) -> Rc<RefCell<TreeNode>> {
 
     let lines: Vec<&str> = contents.split("\n").collect();
 
-    let root = Rc::new(RefCell::new(TreeNode {
-        label: lines[0].to_string(),
-        children: vec![],
-    }));
+    let root = Rc::new(RefCell::new(TreeNode::from_label(lines[0])));
 
     let mut stack: Vec<Rc<RefCell<TreeNode>>> = vec![root.clone()];
 
@@ -37,10 +34,7 @@ pub fn parse(filename: String) -> Rc<RefCell<TreeNode>> {
             let _ = &stack.pop();
         }
 
-        let node = TreeNode {
-            label: grouped_parts[1].to_string(),
-            children: vec![],
-        };
+        let node = TreeNode::from_label(&grouped_parts[1]);
 
         let new_child = Rc::new(RefCell::new(node));
 

@@ -13,7 +13,7 @@ Root
 ##Grandchild 2
 ```
 
-`#` indicates a nested child.
+Here, `#` indicates a nested child.
 
 With the above content in a file `examples/with_grandchildren.txt`, we can render the tree like this:
 
@@ -30,4 +30,32 @@ cargo run -- --input examples/with_grandchildren.txt
 ┌──────┴───────┐  ┌──────┴───────┐
 │ Grandchild 1 │  │ Grandchild 2 │
 └──────────────┘  └──────────────┘
+```
+
+## Development
+
+### Install Rust
+
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+See details in https://www.rust-lang.org/tools/install.
+
+### Run Unittest
+
+```
+cargo test
+```
+
+### Add Libraries
+
+```
+cargo add <DEP>[@<VERSION>] ...
+```
+
+e.g.
+
+```
+cargo add num
 ```
