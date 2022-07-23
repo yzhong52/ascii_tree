@@ -270,9 +270,9 @@ mod tests {
     use super::*;
     use std::cell::RefCell;
 
-    fn assert_eq(input_left: &String, input_right: &str) {
-        let left_rows = input_left.split('\n').collect::<Vec<&str>>();
-        let right_rows = input_right
+    fn assert_eq(left: &String, right: &str) {
+        let left_rows = left.split('\n').collect::<Vec<&str>>();
+        let right_rows = right
             .split('\n')
             .filter(|line| line.len() != 0)
             .collect::<Vec<&str>>();
@@ -280,12 +280,10 @@ mod tests {
         let extra_leading = right_rows
             .iter()
             .map(|line| {
-                let mut count = 0;
-                for ch in line.chars() {
+                for (index, ch) in line.chars().enumerate() {
                     if ch != ' ' {
-                        return count;
+                        return index;
                     }
-                    count += 1;
                 }
 
                 line.len()
@@ -297,8 +295,8 @@ mod tests {
             left_rows.len(),
             right_rows.len(),
             "Left:\n{}\nRight:\n{}\n",
-            input_left,
-            input_right
+            left,
+            right
         );
 
         let row_by_row_comparison: String = left_rows
@@ -319,8 +317,8 @@ mod tests {
                 "\nDiffer from row {}:\n{}\nLeft:\n{}\nRight:\n{}",
                 row,
                 row_by_row_comparison,
-                input_left,
-                input_right
+                left,
+                right
             );
         }
     }
