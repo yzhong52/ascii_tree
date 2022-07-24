@@ -18,7 +18,7 @@ Here, `#` indicates a nested child.
 With the above content in a file `examples/with_grandchildren.txt`, we can render the tree like this:
 
 ```
-cargo run -- --input examples/with_grandchildren.txt
+cargo run -- --input examples/with_grandchildren.md
 
              ┌──────┐             
              │ Root │             
