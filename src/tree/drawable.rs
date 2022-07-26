@@ -324,7 +324,7 @@ mod tests {
     }
 
     #[test]
-    fn test_single_root() {
+    fn test_root() {
         let root = TreeNode::from_label("root");
         let drawable_root = DrawableTreeNode::new(RefCell::new(root).borrow());
         let result = drawable_root.render(&BoxDrawings::THIN);
@@ -336,7 +336,7 @@ mod tests {
     }
 
     #[test]
-    fn test_root_plus_one_child() {
+    fn test_root_with_one_child() {
         let child1 = TreeNode::from_label("child1");
         let root = TreeNode::new("root", vec![child1]);
 
