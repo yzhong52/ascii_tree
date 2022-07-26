@@ -2,7 +2,6 @@ use crate::tree::style::BoxDrawings;
 use crate::tree::tree_node::TreeNode;
 extern crate num;
 use num::Zero;
-use std::cell::Ref;
 use std::cmp::max;
 
 static HORIZONTAL_CHILDREN_BUFFER: usize = 2;
@@ -44,7 +43,7 @@ pub struct DrawableTreeNode {
 }
 
 impl DrawableTreeNode {
-    pub fn new(node: Ref<TreeNode>) -> Self {
+    pub fn new(node: &TreeNode) -> Self {
         // A space on both side, and two vertical bars, i.e.:
         // ┌──────┐
         // │ Root │
@@ -57,7 +56,7 @@ impl DrawableTreeNode {
         let drawable_children: Vec<DrawableTreeNode> = node
             .children
             .iter()
-            .map(|x| DrawableTreeNode::new(x.borrow()))
+            .map(|x| DrawableTreeNode::new(x))
             .collect();
 
         let children_width: usize = if node.children.len() == 0 {
@@ -268,7 +267,6 @@ impl DrawableTreeNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::cell::RefCell;
 
     fn assert_eq(left: &String, right: &str) {
         let left_rows = left.split('\n').collect::<Vec<&str>>();
@@ -324,9 +322,9 @@ mod tests {
     }
 
     #[test]
-    fn test_single_root() {
-        let root = TreeNode::from_label("root");
-        let drawable_root = DrawableTreeNode::new(RefCell::new(root).borrow());
+    fn test_root() {
+        let root = TreeNode::from_label_str("root");
+        let drawable_root = DrawableTreeNode::new(&root);
         let result = drawable_root.render(&BoxDrawings::THIN);
         let expected = r#"
         ┌──────┐
@@ -336,11 +334,11 @@ mod tests {
     }
 
     #[test]
-    fn test_root_plus_one_child() {
-        let child1 = TreeNode::from_label("child1");
+    fn test_root_with_one_child() {
+        let child1 = TreeNode::from_label_str("child1");
         let root = TreeNode::new("root", vec![child1]);
 
-        let drawable_root = DrawableTreeNode::new(RefCell::new(root).borrow());
+        let drawable_root = DrawableTreeNode::new(&root);
         let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
@@ -355,11 +353,11 @@ mod tests {
 
     #[test]
     fn test_root_with_two_children() {
-        let child1 = TreeNode::from_label("child1");
-        let child2 = TreeNode::from_label("child2");
+        let child1 = TreeNode::from_label_str("child1");
+        let child2 = TreeNode::from_label_str("child2");
         let root = TreeNode::new("root", vec![child1, child2]);
 
-        let drawable_root = DrawableTreeNode::new(RefCell::new(root).borrow());
+        let drawable_root = DrawableTreeNode::new(&root);
         let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
@@ -375,12 +373,12 @@ mod tests {
 
     #[test]
     fn test_root_with_three_children() {
-        let child1 = TreeNode::from_label("child1");
-        let child2 = TreeNode::from_label("child2");
-        let child3 = TreeNode::from_label("child3");
+        let child1 = TreeNode::from_label_str("child1");
+        let child2 = TreeNode::from_label_str("child2");
+        let child3 = TreeNode::from_label_str("child3");
         let root = TreeNode::new("root", vec![child1, child2, child3]);
 
-        let drawable_root = DrawableTreeNode::new(RefCell::new(root).borrow());
+        let drawable_root = DrawableTreeNode::new(&root);
         let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
@@ -396,16 +394,16 @@ mod tests {
 
     #[test]
     fn test_root_with_grandchildren() {
-        let grandchild1 = TreeNode::from_label("grandchild1");
-        let grandchild2 = TreeNode::from_label("grandchild2");
-        let grandchild3 = TreeNode::from_label("grandchild3");
+        let grandchild1 = TreeNode::from_label_str("grandchild1");
+        let grandchild2 = TreeNode::from_label_str("grandchild2");
+        let grandchild3 = TreeNode::from_label_str("grandchild3");
 
         let child1 = TreeNode::new("child1", vec![grandchild1, grandchild2]);
         let child2 = TreeNode::new("child2", vec![grandchild3]);
 
         let root = TreeNode::new("root", vec![child1, child2]);
 
-        let drawable_root = DrawableTreeNode::new(RefCell::new(root).borrow());
+        let drawable_root = DrawableTreeNode::new(&root);
         let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"

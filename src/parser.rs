@@ -2,15 +2,13 @@ extern crate itertools;
 extern crate std;
 use crate::tree::tree_node::TreeNode;
 use itertools::Itertools;
-use std::cell::RefCell;
 use std::fs;
-use std::rc::Rc;
 
-pub fn parse(filename: String) -> Rc<RefCell<TreeNode>> {
+pub fn parse(filename: String) -> TreeNode {
     let content: String = fs::read_to_string(filename.clone())
         .expect(format!("Fail to read input file {}", filename).as_str());
 
-    parse_content(content)
+    parse_markdown(content)
 }
 
 // Given a single line, return the depth of the node,
@@ -28,39 +26,52 @@ fn parse_line(line: &str) -> (usize, String) {
         .map(|(_, r)| r.collect())
         .collect();
 
-    (grouped_parts[0].len() - 1, grouped_parts[1].clone())
+    let count_pound_signs = grouped_parts[0].len();
+    let label = grouped_parts[1].trim();
+    (count_pound_signs, label.to_string())
 }
 
-fn parse_content(content: String) -> Rc<RefCell<TreeNode>> {
-    let lines: Vec<&str> = content.split("\n").filter(|&x| !x.is_empty()).collect();
+fn parse_markdown(content: String) -> TreeNode {
+    let lines: Vec<&str> = content
+        .split("\n")
+        .map(|x| x.trim())
+        .filter(|&x| !x.is_empty())
+        .filter(|&x| x.starts_with("#"))
+        .collect();
 
     let (_depth, label) = parse_line(lines[0]);
 
-    let root = Rc::new(RefCell::new(TreeNode::from_label(&label)));
+    let root = TreeNode::from_label(label);
 
-    let mut stack: Vec<Rc<RefCell<TreeNode>>> = vec![root.clone()];
+    let mut stack: Vec<Vec<TreeNode>> = vec![vec![root]];
 
     for line in &lines[1..] {
-
         let (depth, label) = parse_line(line);
 
         while depth < stack.len() {
-            let _ = &stack.pop();
+            let children = stack.pop().unwrap();
+            stack.last_mut().unwrap().last_mut().unwrap().children = children;
         }
 
-        let node = TreeNode::from_label(label.as_str());
-
-        let new_child = Rc::new(RefCell::new(node));
-
-        stack
-            .last()
-            .unwrap()
-            .borrow_mut()
-            .children
-            .push(new_child.clone());
-        stack.push(new_child);
+        let node = TreeNode::from_label(label);
+        if depth > stack.len() {
+            stack.push(vec![node]);
+        } else {
+            assert_eq!(depth, stack.len());
+            stack.last_mut().unwrap().push(node);
+        }
     }
-    root
+
+    while stack.len() > 1 {
+        let children = stack.pop().unwrap();
+        stack.last_mut().unwrap().last_mut().unwrap().children = children;
+    }
+
+    assert_eq!(stack.len(), 1);
+    let mut root_layer = stack.pop().unwrap();
+
+    assert_eq!(root_layer.len(), 1);
+    root_layer.pop().unwrap()
 }
 
 #[cfg(test)]
@@ -70,23 +81,50 @@ mod tests {
     #[test]
     fn test_parse_line() {
         let actual = parse_line("#Root");
-        assert_eq!(actual, (0, "Root".to_owned()))
+        assert_eq!(actual, (1, "Root".to_owned()))
     }
 
     #[test]
-    fn test_parse_content_root_only() {
-        let node = parse_content("#Root\n".to_string());
-
-        assert_eq!(node.borrow().label, "Root");
-        assert_eq!(node.borrow().children.len(), 0);
-
+    fn test_parse_line_with_with_space() {
+        let actual = parse_line("# Hello World ");
+        assert_eq!(actual, (1, "Hello World".to_owned()))
     }
 
     #[test]
-    fn test_parse_content_root_with_children() {
-        let node = parse_content("#Root\n##Child1".to_string());
+    fn test_parse_markdown_root() {
+        let node = parse_markdown("#Root\n".to_string());
 
-        assert_eq!(node.borrow().label, "Root");
-        assert_eq!(node.borrow().children.len(), 1);
+        assert_eq!(node.label, "Root");
+        assert_eq!(node.children.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_markdown_ignore_none_title_lines() {
+        // Both empty lines and none-title lines are ignored
+        let node = parse_markdown(
+            r#"
+            #Root
+            hello world
+            "#
+            .to_string(),
+        );
+
+        assert_eq!(node.label, "Root");
+        assert_eq!(node.children.len(), 0);
+    }
+
+    #[test]
+    fn test_parse_markdown_root_with_children() {
+        let node = parse_markdown(
+            r#"
+            #Root
+            ##Child1
+            ##Child2
+            "#
+            .to_string(),
+        );
+
+        assert_eq!(node.label, "Root");
+        assert_eq!(node.children.len(), 2);
     }
 }

@@ -19,7 +19,7 @@ struct Args {
 fn main() {
     let args = Args::parse();
     let root = parse(args.input);
-    let drawable_root = DrawableTreeNode::new(root.borrow());
+    let drawable_root = DrawableTreeNode::new(&root);
     let result = drawable_root.render(&BoxDrawings::THIN);
     println!("{}", result);
 }
