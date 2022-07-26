@@ -83,7 +83,7 @@ mod tests {
         let actual = parse_line("#Root");
         assert_eq!(actual, (1, "Root".to_owned()))
     }
-    
+
     #[test]
     fn test_parse_line_with_with_space() {
         let actual = parse_line("# Hello World ");
