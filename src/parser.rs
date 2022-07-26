@@ -2,15 +2,13 @@ extern crate itertools;
 extern crate std;
 use crate::tree::tree_node::TreeNode;
 use itertools::Itertools;
-use std::cell::RefCell;
 use std::fs;
-use std::rc::Rc;
 
-pub fn parse(filename: String) -> Rc<RefCell<TreeNode>> {
+pub fn parse(filename: String) -> TreeNode {
     let content: String = fs::read_to_string(filename.clone())
         .expect(format!("Fail to read input file {}", filename).as_str());
 
-    parse_content(content)
+    parse_markdown(content)
 }
 
 // Given a single line, return the depth of the node,
@@ -45,37 +43,7 @@ fn parse_line2(line: &str) -> (usize, String) {
     (count_pound_signs, label.to_string())
 }
 
-#[derive(Debug)]
-pub struct TreeNode2 {
-    pub label: String,
-    pub children: Vec<TreeNode2>,
-}
-
-impl TreeNode2 {
-    pub fn from_label_str(label: &str) -> Self {
-        TreeNode2 {
-            label: label.to_string(),
-            children: vec![],
-        }
-    }
-
-    pub fn from_label(label: String) -> Self {
-        TreeNode2 {
-            label: label,
-            children: vec![],
-        }
-    }
-
-    #[cfg(test)]
-    pub fn new(label: &str, children: Vec<TreeNode2>) -> Self {
-        TreeNode2 {
-            label: label.to_string(),
-            children: children,
-        }
-    }
-}
-
-fn parse_markdown(content: String) -> TreeNode2 {
+fn parse_markdown(content: String) -> TreeNode {
     let lines: Vec<&str> = content
         .split("\n")
         .map(|x| x.trim())
@@ -85,9 +53,9 @@ fn parse_markdown(content: String) -> TreeNode2 {
 
     let (_depth, label) = parse_line2(lines[0]);
 
-    let root = TreeNode2::from_label(label);
+    let root = TreeNode::from_label(label);
 
-    let mut stack: Vec<Vec<TreeNode2>> = vec![vec![root]];
+    let mut stack: Vec<Vec<TreeNode>> = vec![vec![root]];
 
     for line in &lines[1..] {
         let (depth, label) = parse_line2(line);
@@ -97,7 +65,7 @@ fn parse_markdown(content: String) -> TreeNode2 {
             stack.last_mut().unwrap().last_mut().unwrap().children = children;
         }
 
-        let node = TreeNode2::from_label(label);
+        let node = TreeNode::from_label(label);
         if depth > stack.len() {
             stack.push(vec![node]);
         } else {
@@ -118,37 +86,6 @@ fn parse_markdown(content: String) -> TreeNode2 {
     root_layer.pop().unwrap()
 }
 
-fn parse_content(content: String) -> Rc<RefCell<TreeNode>> {
-    let lines: Vec<&str> = content.split("\n").filter(|&x| !x.is_empty()).collect();
-
-    let (_depth, label) = parse_line(lines[0]);
-
-    let root = Rc::new(RefCell::new(TreeNode::from_label(&label)));
-
-    let mut stack: Vec<Rc<RefCell<TreeNode>>> = vec![root.clone()];
-
-    for line in &lines[1..] {
-        let (depth, label) = parse_line(line);
-
-        while depth < stack.len() {
-            let _ = &stack.pop();
-        }
-
-        let node = TreeNode::from_label(label.as_str());
-
-        let new_child = Rc::new(RefCell::new(node));
-
-        stack
-            .last()
-            .unwrap()
-            .borrow_mut()
-            .children
-            .push(new_child.clone());
-        stack.push(new_child);
-    }
-    root
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -163,22 +100,6 @@ mod tests {
     fn test_parse_line_with_with_space() {
         let actual = parse_line2("# Hello World ");
         assert_eq!(actual, (1, "Hello World".to_owned()))
-    }
-
-    #[test]
-    fn test_parse_content_root() {
-        let node = parse_content("#Root\n".to_string());
-
-        assert_eq!(node.borrow().label, "Root");
-        assert_eq!(node.borrow().children.len(), 0);
-    }
-
-    #[test]
-    fn test_parse_content_root_with_children() {
-        let node = parse_content("#Root\n##Child1".to_string());
-
-        assert_eq!(node.borrow().label, "Root");
-        assert_eq!(node.borrow().children.len(), 1);
     }
 
     #[test]
