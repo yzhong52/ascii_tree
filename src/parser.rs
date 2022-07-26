@@ -26,18 +26,6 @@ fn parse_line(line: &str) -> (usize, String) {
         .map(|(_, r)| r.collect())
         .collect();
 
-    (grouped_parts[0].len() - 1, grouped_parts[1].clone())
-}
-
-fn parse_line2(line: &str) -> (usize, String) {
-    let grouped_parts: Vec<String> = line
-        .to_string()
-        .chars()
-        .group_by(|&x| x == '#')
-        .into_iter()
-        .map(|(_, r)| r.collect())
-        .collect();
-
     let count_pound_signs = grouped_parts[0].len();
     let label = grouped_parts[1].trim();
     (count_pound_signs, label.to_string())
@@ -51,14 +39,14 @@ fn parse_markdown(content: String) -> TreeNode {
         .filter(|&x| x.starts_with("#"))
         .collect();
 
-    let (_depth, label) = parse_line2(lines[0]);
+    let (_depth, label) = parse_line(lines[0]);
 
     let root = TreeNode::from_label(label);
 
     let mut stack: Vec<Vec<TreeNode>> = vec![vec![root]];
 
     for line in &lines[1..] {
-        let (depth, label) = parse_line2(line);
+        let (depth, label) = parse_line(line);
 
         while depth < stack.len() {
             let children = stack.pop().unwrap();
@@ -93,12 +81,12 @@ mod tests {
     #[test]
     fn test_parse_line() {
         let actual = parse_line("#Root");
-        assert_eq!(actual, (0, "Root".to_owned()))
+        assert_eq!(actual, (1, "Root".to_owned()))
     }
     
     #[test]
     fn test_parse_line_with_with_space() {
-        let actual = parse_line2("# Hello World ");
+        let actual = parse_line("# Hello World ");
         assert_eq!(actual, (1, "Hello World".to_owned()))
     }
 
