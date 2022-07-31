@@ -1,5 +1,5 @@
 [package]
-name = "ascii_tree"
+name = "astree"
 version = "0.1.0"
 authors = ["Yuchen Zhong <yuchen.post@gmail.com>"]
 license = "MIT OR Apache-2.0"
