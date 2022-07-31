@@ -31,6 +31,40 @@ ascii_tree --input examples/with_grandchildren.md
 └──────────────┘  └──────────────┘
 ```
 
+### Other Styles
+
+With thick lines:
+
+```
+ascii_tree --input examples/with_grandchildren.md --style thick
+             ┏━━━━━━┓             
+             ┃ Root ┃             
+             ┗━━┳━━━┛             
+           ┏━━━━┻━━━━┓            
+           ┃ Child 1 ┃            
+           ┗━━━━┳━━━━┛            
+       ┏━━━━━━━━┻━━━━━━━━┓        
+┏━━━━━━┻━━━━━━━┓  ┏━━━━━━┻━━━━━━━┓
+┃ Grandchild 1 ┃  ┃ Grandchild 2 ┃
+┗━━━━━━━━━━━━━━┛  ┗━━━━━━━━━━━━━━┛
+```
+
+With double lines:
+
+```
+ascii_tree --input examples/with_grandchildren.md --style double
+             ╔══════╗             
+             ║ Root ║             
+             ╚══╦═══╝             
+           ╔════╩════╗            
+           ║ Child 1 ║            
+           ╚════╦════╝            
+       ╔════════╩════════╗        
+╔══════╩═══════╗  ╔══════╩═══════╗
+║ Grandchild 1 ║  ║ Grandchild 2 ║
+╚══════════════╝  ╚══════════════╝
+```
+
 ## Development
 
 ### Install Rust
