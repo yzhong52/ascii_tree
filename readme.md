@@ -4,13 +4,15 @@ A command line tool for drawing tree structures with ascii characters.
 
 ## Usage
 
-The input file follows the markdown syntax:
+Install from [crates.io](https://crates.io/crates/astree) with `cargo install astree`.
+
+Create an input file following the markdown syntax:
 
 ```
-#Root
-##Child 1
-###Grandchild 1
-###Grandchild 2
+# Root
+## Child 1
+### Grandchild 1
+### Grandchild 2
 ```
 
 Here, an extra `#` indicates a nested child.
@@ -18,7 +20,7 @@ Here, an extra `#` indicates a nested child.
 With the above content saved in an input file `examples/with_grandchildren.md`, we can render the tree like this:
 
 ```
-ascii_tree --input examples/with_grandchildren.md
+astree --input examples/with_grandchildren.md
              ┌──────┐             
              │ Root │             
              └──┬───┘             
@@ -36,7 +38,7 @@ ascii_tree --input examples/with_grandchildren.md
 With thick lines:
 
 ```
-ascii_tree --input examples/with_grandchildren.md --style thick
+astree --input examples/with_grandchildren.md --style thick
              ┏━━━━━━┓             
              ┃ Root ┃             
              ┗━━┳━━━┛             
@@ -52,7 +54,7 @@ ascii_tree --input examples/with_grandchildren.md --style thick
 With double lines:
 
 ```
-ascii_tree --input examples/with_grandchildren.md --style double
+astree --input examples/with_grandchildren.md --style double
              ╔══════╗             
              ║ Root ║             
              ╚══╦═══╝             
@@ -68,7 +70,7 @@ ascii_tree --input examples/with_grandchildren.md --style double
 With special top connection:
 
 ```
-ascii_tree --input examples/with_grandchildren.md --top-connection ▼
+astree --input examples/with_grandchildren.md --top-connection ▼
              ┌──────┐             
              │ Root │             
              └──┬───┘             
@@ -84,7 +86,7 @@ ascii_tree --input examples/with_grandchildren.md --top-connection ▼
 With chest style:
 
 ```
-ascii_tree --input examples/with_grandchildren_2.md --style chest
+astree --input examples/with_grandchildren_2.md --style chest
                        ╔━━━━━━╗               
                        ┃ Root ┃               
                        ╚━━┳━━━╝               
@@ -103,7 +105,7 @@ ascii_tree --input examples/with_grandchildren_2.md --style chest
 With balloon style:
 
 ```
-ascii_tree --input examples/with_children_2.md --style balloon --top-connection '☐' --bottom-connection '┰'`
+astree --input examples/with_children_2.md --style balloon --top-connection '☐' --bottom-connection '┰'`
    ╭───────────╮    
    │ Root Node │    
    ╰─────┰─────╯    
@@ -123,6 +125,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 See details in https://www.rust-lang.org/tools/install.
+
 ### Build & Run
 
 ```
@@ -131,11 +134,21 @@ cargo run -- --input examples/with_grandchildren.md
 
 ### Install
 
+Install local version:
+
 ```
+git clone git@github.com:yzhong52/ascii_tree.git
+cd ascii_tree
 cargo install --path .
 ```
 
-By default, it will be installed under `/Users/<YOUR_USERNAME>/.cargo/bin/ascii_tree`.
+Install from <https://crates.io/crates/astree>:
+
+```
+cargo install astree
+```
+
+By default, it will be installed under `/Users/<YOUR_USERNAME>/.cargo/bin/astree`.
 
 ### Unit Tests
 

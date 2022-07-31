@@ -1,3 +1,4 @@
+extern crate clap;
 extern crate itertools;
 
 use crate::parser::parse;

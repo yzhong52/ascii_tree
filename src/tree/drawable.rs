@@ -1,7 +1,8 @@
+extern crate num;
+
+use self::num::Zero;
 use crate::tree::style::BoxDrawings;
 use crate::tree::tree_node::TreeNode;
-extern crate num;
-use num::Zero;
 use std::cmp::max;
 
 static HORIZONTAL_CHILDREN_BUFFER: usize = 2;
@@ -525,9 +526,11 @@ mod layout_tests {
 
 #[cfg(test)]
 mod style_tests {
+    extern crate rstest;
+
+    use self::rstest::*;
     use super::tests::assert_eq;
     use super::*;
-    use rstest::*;
 
     #[fixture]
     pub fn drawable() -> DrawableTreeNode {
@@ -578,7 +581,7 @@ mod style_tests {
         ╚════════╝  ╚════════╝"#;
         assert_eq(&result, &expected);
     }
-    
+
     #[rstest]
     fn test_style_with_top_connection(drawable: DrawableTreeNode) {
         let result = drawable.render(&BoxDrawings::THIN, Some('▼'), None);
