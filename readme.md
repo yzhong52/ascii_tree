@@ -4,13 +4,15 @@ A command line tool for drawing tree structures with ascii characters.
 
 ## Usage
 
-The input file follows the markdown syntax:
+Install from [crates.io](https://crates.io/crates/astree) with `cargo install astree`.
+
+Create an input file following the markdown syntax:
 
 ```
-#Root
-##Child 1
-###Grandchild 1
-###Grandchild 2
+# Root
+## Child 1
+### Grandchild 1
+### Grandchild 2
 ```
 
 Here, an extra `#` indicates a nested child.
