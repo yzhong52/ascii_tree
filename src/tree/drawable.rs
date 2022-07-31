@@ -526,9 +526,11 @@ mod layout_tests {
 
 #[cfg(test)]
 mod style_tests {
+    extern crate rstest;
+
     use super::tests::assert_eq;
     use super::*;
-    use rstest::*;
+    use self::rstest::*;
 
     #[fixture]
     pub fn drawable() -> DrawableTreeNode {
