@@ -31,6 +31,75 @@ ascii_tree --input examples/with_grandchildren.md
 └──────────────┘  └──────────────┘
 ```
 
+### Other Styles
+
+With thick lines:
+
+```
+ascii_tree --input examples/with_grandchildren.md --style thick
+             ┏━━━━━━┓             
+             ┃ Root ┃             
+             ┗━━┳━━━┛             
+           ┏━━━━┻━━━━┓            
+           ┃ Child 1 ┃            
+           ┗━━━━┳━━━━┛            
+       ┏━━━━━━━━┻━━━━━━━━┓        
+┏━━━━━━┻━━━━━━━┓  ┏━━━━━━┻━━━━━━━┓
+┃ Grandchild 1 ┃  ┃ Grandchild 2 ┃
+┗━━━━━━━━━━━━━━┛  ┗━━━━━━━━━━━━━━┛
+```
+
+With double lines:
+
+```
+ascii_tree --input examples/with_grandchildren.md --style double
+             ╔══════╗             
+             ║ Root ║             
+             ╚══╦═══╝             
+           ╔════╩════╗            
+           ║ Child 1 ║            
+           ╚════╦════╝            
+       ╔════════╩════════╗        
+╔══════╩═══════╗  ╔══════╩═══════╗
+║ Grandchild 1 ║  ║ Grandchild 2 ║
+╚══════════════╝  ╚══════════════╝
+```
+
+With special top connection:
+
+```
+ascii_tree --input examples/with_grandchildren.md --top-connection ▼
+             ┌──────┐             
+             │ Root │             
+             └──┬───┘             
+           ┌────▼────┐            
+           │ Child 1 │            
+           └────┬────┘            
+       ┌────────┴────────┐        
+┌──────▼───────┐  ┌──────▼───────┐
+│ Grandchild 1 │  │ Grandchild 2 │
+└──────────────┘  └──────────────┘
+```
+
+With heavy mix:
+
+```
+ascii_tree --input examples/with_grandchildren_2.md --style heavy-mix
+                       ╔━━━━━━╗               
+                       ┃ Root ┃               
+                       ╚━━┳━━━╝               
+              ╔━━━━━━━━━━━┻━━━━━━━━━━━╗       
+          ╔━━━┻━━━╗               ╔━━━┻━━━╗   
+          ┃ Left  ┃               ┃ Right ┃   
+          ┃ Child ┃               ┃ Child ┃   
+          ╚━━━┳━━━╝               ╚━━━┳━━━╝   
+      ╔━━━━━━━┻━━━━━━━╗         ╔━━━━━┻━━━━━━╗
+╔━━━━━┻━━━━━━╗  ╔━━━━━┻━━━━━━╗  ┃   Right    ┃
+┃ Grandchild ┃  ┃ Grandchild ┃  ┃ Grandchild ┃
+┃    (1)     ┃  ┃    (2)     ┃  ╚━━━━━━━━━━━━╝
+╚━━━━━━━━━━━━╝  ╚━━━━━━━━━━━━╝                
+```
+
 ## Development
 
 ### Install Rust
@@ -54,7 +123,7 @@ cargo install --path .
 
 By default, it will be installed under `/Users/<YOUR_USERNAME>/.cargo/bin/ascii_tree`.
 
-### Unittest
+### Unit Tests
 
 ```
 cargo test
