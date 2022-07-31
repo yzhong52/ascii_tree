@@ -277,9 +277,7 @@ impl DrawableTreeNode {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
-    fn assert_eq(left: &String, right: &str) {
+    pub fn assert_eq(left: &String, right: &str) {
         let left_rows = left.split('\n').collect::<Vec<&str>>();
         let right_rows = right
             .split('\n')
@@ -334,6 +332,12 @@ mod tests {
             );
         }
     }
+}
+
+#[cfg(test)]
+mod layout_tests {
+    use super::tests::assert_eq;
+    use super::*;
 
     #[test]
     fn test_root() {
@@ -477,6 +481,63 @@ mod tests {
         │ grandchild1 │  │ grandchild2 │  │    node     │
         │    node     │  │    node     │  └─────────────┘
         └─────────────┘  └─────────────┘                 "#;
+        assert_eq(&result, &expected);
+    }
+}
+
+#[cfg(test)]
+mod style_tests {
+    use super::tests::assert_eq;
+    use super::*;
+    use rstest::*;
+
+    #[fixture]
+    pub fn drawable_root() -> DrawableTreeNode {
+        let child1: TreeNode = TreeNode::from_label_str("child1");
+        let child2: TreeNode = TreeNode::from_label_str("child2");
+        let root: TreeNode = TreeNode::new("root", vec![child1, child2]);
+        DrawableTreeNode::new(&root)
+    }
+    
+    #[rstest]
+    fn test_style_thin(drawable_root: DrawableTreeNode) {
+        let result = drawable_root.render(&BoxDrawings::THIN);
+        let expected = r#"
+                ┌──────┐       
+                │ root │       
+                └──┬───┘       
+             ┌─────┴─────┐     
+         ┌───┴────┐  ┌───┴────┐
+         │ child1 │  │ child2 │
+         └────────┘  └────────┘"#;
+        assert_eq(&result, &expected);
+    }
+
+    #[rstest]
+    fn test_style_thick(drawable_root: DrawableTreeNode) {
+        let result = drawable_root.render(&BoxDrawings::THICK);
+        let expected = r#"
+               ┏━━━━━━┓       
+               ┃ root ┃       
+               ┗━━┳━━━┛       
+            ┏━━━━━┻━━━━━┓     
+        ┏━━━┻━━━━┓  ┏━━━┻━━━━┓
+        ┃ child1 ┃  ┃ child2 ┃
+        ┗━━━━━━━━┛  ┗━━━━━━━━┛"#;
+        assert_eq(&result, &expected);
+    }
+
+    #[rstest]
+    fn test_style_double(drawable_root: DrawableTreeNode) {
+        let result = drawable_root.render(&BoxDrawings::DOUBLE);
+        let expected = r#"
+               ╔══════╗       
+               ║ root ║       
+               ╚══╦═══╝       
+            ╔═════╩═════╗     
+        ╔═══╩════╗  ╔═══╩════╗
+        ║ child1 ║  ║ child2 ║
+        ╚════════╝  ╚════════╝"#;
         assert_eq(&result, &expected);
     }
 }
