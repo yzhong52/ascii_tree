@@ -1,8 +1,8 @@
 extern crate num;
 
+use self::num::Zero;
 use crate::tree::style::BoxDrawings;
 use crate::tree::tree_node::TreeNode;
-use self::num::Zero;
 use std::cmp::max;
 
 static HORIZONTAL_CHILDREN_BUFFER: usize = 2;
@@ -528,9 +528,9 @@ mod layout_tests {
 mod style_tests {
     extern crate rstest;
 
+    use self::rstest::*;
     use super::tests::assert_eq;
     use super::*;
-    use self::rstest::*;
 
     #[fixture]
     pub fn drawable() -> DrawableTreeNode {
