@@ -105,7 +105,7 @@ astree --input examples/with_grandchildren_2.md --style chest
 With balloon style:
 
 ```
-astree --input examples/with_children_2.md --style balloon --top-connection '☐' --bottom-connection '┰'`
+astree --input examples/with_children_2.md --style balloon --top-connection ☐ --bottom-connection ┰
    ╭───────────╮    
    │ Root Node │    
    ╰─────┰─────╯    
@@ -166,4 +166,10 @@ e.g.
 
 ```
 cargo add num
+```
+
+### Release 
+
+```
+cargo publish --token <TOEKN>
 ```
