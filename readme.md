@@ -81,10 +81,10 @@ ascii_tree --input examples/with_grandchildren.md --top-connection ▼
 └──────────────┘  └──────────────┘
 ```
 
-With heavy mix:
+With chest style:
 
 ```
-ascii_tree --input examples/with_grandchildren_2.md --style heavy-mix
+ascii_tree --input examples/with_grandchildren_2.md --style chest
                        ╔━━━━━━╗               
                        ┃ Root ┃               
                        ╚━━┳━━━╝               
@@ -98,6 +98,20 @@ ascii_tree --input examples/with_grandchildren_2.md --style heavy-mix
 ┃ Grandchild ┃  ┃ Grandchild ┃  ┃ Grandchild ┃
 ┃    (1)     ┃  ┃    (2)     ┃  ╚━━━━━━━━━━━━╝
 ╚━━━━━━━━━━━━╝  ╚━━━━━━━━━━━━╝                
+```
+
+With balloon style:
+
+```
+ascii_tree --input examples/with_children_2.md --style balloon --top-connection '☐' --bottom-connection '┰'`
+   ╭───────────╮    
+   │ Root Node │    
+   ╰─────┰─────╯    
+    ╭────┴─────╮    
+╭───☐───╮  ╭───☐───╮
+│ Child │  │ Child │
+│  (1)  │  │  (2)  │
+╰───────╯  ╰───────╯
 ```
 
 ## Development
