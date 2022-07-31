@@ -18,7 +18,7 @@ Here, an extra `#` indicates a nested child.
 With the above content saved in an input file `examples/with_grandchildren.md`, we can render the tree like this:
 
 ```
-ascii_tree --input examples/with_grandchildren.md
+astree --input examples/with_grandchildren.md
              ┌──────┐             
              │ Root │             
              └──┬───┘             
@@ -36,7 +36,7 @@ ascii_tree --input examples/with_grandchildren.md
 With thick lines:
 
 ```
-ascii_tree --input examples/with_grandchildren.md --style thick
+astree --input examples/with_grandchildren.md --style thick
              ┏━━━━━━┓             
              ┃ Root ┃             
              ┗━━┳━━━┛             
@@ -52,7 +52,7 @@ ascii_tree --input examples/with_grandchildren.md --style thick
 With double lines:
 
 ```
-ascii_tree --input examples/with_grandchildren.md --style double
+astree --input examples/with_grandchildren.md --style double
              ╔══════╗             
              ║ Root ║             
              ╚══╦═══╝             
@@ -68,7 +68,7 @@ ascii_tree --input examples/with_grandchildren.md --style double
 With special top connection:
 
 ```
-ascii_tree --input examples/with_grandchildren.md --top-connection ▼
+astree --input examples/with_grandchildren.md --top-connection ▼
              ┌──────┐             
              │ Root │             
              └──┬───┘             
@@ -84,7 +84,7 @@ ascii_tree --input examples/with_grandchildren.md --top-connection ▼
 With chest style:
 
 ```
-ascii_tree --input examples/with_grandchildren_2.md --style chest
+astree --input examples/with_grandchildren_2.md --style chest
                        ╔━━━━━━╗               
                        ┃ Root ┃               
                        ╚━━┳━━━╝               
@@ -103,7 +103,7 @@ ascii_tree --input examples/with_grandchildren_2.md --style chest
 With balloon style:
 
 ```
-ascii_tree --input examples/with_children_2.md --style balloon --top-connection '☐' --bottom-connection '┰'`
+astree --input examples/with_children_2.md --style balloon --top-connection '☐' --bottom-connection '┰'`
    ╭───────────╮    
    │ Root Node │    
    ╰─────┰─────╯    
@@ -140,13 +140,13 @@ cd ascii_tree
 cargo install --path .
 ```
 
-Install from crate.io:
+Install from <https://crates.io/crates/astree>:
 
 ```
-cargo install ascii_tree
+cargo install astree
 ```
 
-By default, it will be installed under `/Users/<YOUR_USERNAME>/.cargo/bin/ascii_tree`.
+By default, it will be installed under `/Users/<YOUR_USERNAME>/.cargo/bin/astree`.
 
 ### Unit Tests
 
