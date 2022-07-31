@@ -37,21 +37,30 @@ pub struct DrawableTreeNode {
     // Size of the node with all its children (if any)
     pub overall_width: usize,
     pub overall_height: usize,
-    // TODO: Yuchen - add support for multi-line labels with '\n'
-    label: String,
+    // For multi-line label, vec!["Root", "Node"]
+    // ┌──────┐
+    // │ Root │
+    // │ Node │
+    // └──────┘
+    labels: Vec<String>,
     children: Vec<DrawableTreeNode>,
 }
 
 impl DrawableTreeNode {
     pub fn new(node: &TreeNode) -> Self {
+        let label = node.label.replace("\\n", "\n");
+        let labels: Vec<String> = label.split('\n').map(|x| x.to_string()).collect();
+
         // A space on both side, and two vertical bars, i.e.:
-        // ┌──────┐
+        // ┌──────┐ <- 1
         // │ Root │
-        // └──────┘
+        // │ Node │
+        // └──────┘ <- 2
         // ↑↑    ↑↑
         // 12    34
-        let node_width = node.label.len() + 4;
-        let node_height = 3;
+        let node_width = labels.iter().map(|x| x.len()).max().unwrap() + 4;
+        // One horizontal bar at the top, one at the bottom
+        let node_height = labels.len() + 2;
 
         let drawable_children: Vec<DrawableTreeNode> = node
             .children
@@ -111,7 +120,7 @@ impl DrawableTreeNode {
             height: node_height,
             overall_width: overall_width,
             overall_height: overall_height,
-            label: node.label.clone(),
+            labels: labels,
             children: drawable_children,
         }
     }
@@ -152,9 +161,11 @@ impl DrawableTreeNode {
         buffer[origin.y + self.height - 1][left] = style.down_and_left;
         buffer[origin.y + self.height - 1][right - 1] = style.down_and_right;
 
-        let label_start = left + 2;
-        for (i, ch) in self.label.chars().enumerate() {
-            buffer[origin.y + 1][label_start + i] = ch;
+        for (row_index, label) in self.labels.iter().enumerate() {
+            let label_start = left + (self.width - label.len()) / 2;
+            for (i, ch) in label.chars().enumerate() {
+                buffer[origin.y + row_index + 1][label_start + i] = ch;
+            }
         }
 
         if origin != &Point2D::<usize>::zero() {
@@ -289,12 +300,15 @@ mod tests {
             .min()
             .unwrap();
 
+        // Remove extra leadings
+        let right_rows: Vec<&str> = right_rows.iter().map(|row| &row[extra_leading..]).collect();
+
         assert_eq!(
             left_rows.len(),
             right_rows.len(),
             "Left:\n{}\nRight:\n{}\n",
             left,
-            right
+            right_rows.join("\n")
         );
 
         let row_by_row_comparison: String = left_rows
@@ -303,7 +317,7 @@ mod tests {
             .enumerate()
             .map(|(index, row)| {
                 let (left_row, right_row) = row;
-                format!("{:5}: {}|{}", index, left_row, &right_row[extra_leading..])
+                format!("{:5}: {}|{}", index, left_row, right_row)
             })
             .collect::<Vec<String>>()
             .join("\n");
@@ -311,12 +325,12 @@ mod tests {
         for row in 0..left_rows.len() {
             assert_eq!(
                 left_rows[row],
-                &right_rows[row][extra_leading..],
+                right_rows[row],
                 "\nDiffer from row {}:\n{}\nLeft:\n{}\nRight:\n{}",
                 row,
                 row_by_row_comparison,
                 left,
-                right
+                right_rows.join("\n")
             );
         }
     }
@@ -417,6 +431,51 @@ mod tests {
                ┌───────┴────────┐         ┌──────┴──────┐
         ┌──────┴──────┐  ┌──────┴──────┐  │ grandchild3 │
         │ grandchild1 │  │ grandchild2 │  └─────────────┘
+        └─────────────┘  └─────────────┘                 "#;
+        assert_eq(&result, &expected);
+    }
+
+    #[test]
+    fn test_multi_line_label() {
+        let root = TreeNode::from_label_str("Root\\nNode");
+        let drawable_root = DrawableTreeNode::new(&root);
+        let result = drawable_root.render(&BoxDrawings::THIN);
+        let expected = r#"
+        ┌──────┐
+        │ Root │
+        │ Node │
+        └──────┘"#;
+        assert_eq(&result, &expected);
+    }
+
+    #[test]
+    fn test_multi_line_label_with_grandchildren() {
+        let grandchild1 = TreeNode::from_label_str("grandchild1\\nnode");
+        let grandchild2 = TreeNode::from_label_str("grandchild2\\nnode");
+        let grandchild3 = TreeNode::from_label_str("grandchild3\\nnode");
+
+        let child1 = TreeNode::new("child1\\nnode", vec![grandchild1, grandchild2]);
+        let child2 = TreeNode::new("child2\\nnode", vec![grandchild3]);
+
+        let root = TreeNode::new("root\\nnode", vec![child1, child2]);
+
+        let drawable_root = DrawableTreeNode::new(&root);
+        let result = drawable_root.render(&BoxDrawings::THIN);
+
+        let expected = r#"
+                                 ┌──────┐                
+                                 │ root │                
+                                 │ node │                
+                                 └──┬───┘                
+                       ┌────────────┴────────────┐       
+                   ┌───┴────┐                ┌───┴────┐  
+                   │ child1 │                │ child2 │  
+                   │  node  │                │  node  │  
+                   └───┬────┘                └───┬────┘  
+               ┌───────┴────────┐         ┌──────┴──────┐
+        ┌──────┴──────┐  ┌──────┴──────┐  │ grandchild3 │
+        │ grandchild1 │  │ grandchild2 │  │    node     │
+        │    node     │  │    node     │  └─────────────┘
         └─────────────┘  └─────────────┘                 "#;
         assert_eq(&result, &expected);
     }
