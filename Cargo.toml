@@ -1,7 +1,14 @@
 [package]
 name = "ascii_tree"
 version = "0.1.0"
-edition = "2021"
+authors = ["Yuchen Zhong <yuchen.post@gmail.com>"]
+license = "MIT OR Apache-2.0"
+description = " A command line tool for drawing tree structures with ascii characters"
+readme = "README.md"
+homepage = "https://github.com/yzhong52/ascii_tree"
+repository = "https://github.com/yzhong52/ascii_tree"
+keywords = ["cli", "ascii", "tree"]
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
