@@ -123,6 +123,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
 See details in https://www.rust-lang.org/tools/install.
+
 ### Build & Run
 
 ```
@@ -131,8 +132,18 @@ cargo run -- --input examples/with_grandchildren.md
 
 ### Install
 
+Install local version:
+
 ```
+git clone git@github.com:yzhong52/ascii_tree.git
+cd ascii_tree
 cargo install --path .
+```
+
+Install from crate.io:
+
+```
+cargo install ascii_tree
 ```
 
 By default, it will be installed under `/Users/<YOUR_USERNAME>/.cargo/bin/ascii_tree`.
