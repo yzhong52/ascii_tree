@@ -3,6 +3,7 @@ pub enum Style {
     Thin,
     Thick,
     Double,
+    HeavyMix
 }
 
 pub struct BoxDrawings {
@@ -23,6 +24,7 @@ impl BoxDrawings {
             Style::Thin => BoxDrawings::THIN,
             Style::Thick => BoxDrawings::THICK,
             Style::Double => BoxDrawings::DOUBLE,
+            Style::HeavyMix => BoxDrawings::HEAVY_MIX,
         }
     }
 
@@ -60,5 +62,17 @@ impl BoxDrawings {
         vertical_and_horizontal: '╬',
         down_and_horizontal: '╦',
         up_and_horizontal: '╩',
+    };
+
+    pub const HEAVY_MIX: BoxDrawings = BoxDrawings {
+        up_and_left: '╔',
+        up_and_right: '╗',
+        down_and_left: '╚',
+        down_and_right: '╝',
+        vertical: '┃',
+        horizontal: '━',
+        vertical_and_horizontal: '╋',
+        down_and_horizontal: '┳',
+        up_and_horizontal: '┻',
     };
 }

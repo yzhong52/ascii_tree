@@ -18,12 +18,22 @@ struct Args {
 
     #[clap(short, long, arg_enum, default_value = "thin")]
     style: Style,
+
+    #[clap(short, long)]
+    top_connection: Option<char>,
+
+    #[clap(short, long)]
+    bottom_connection: Option<char>,
 }
 
 fn main() {
     let args = Args::parse();
     let root = parse(args.input);
     let drawable_root = DrawableTreeNode::new(&root);
-    let result = drawable_root.render(&BoxDrawings::new(args.style));
+    let result = drawable_root.render(
+        &BoxDrawings::new(args.style),
+        args.top_connection,
+        args.bottom_connection,
+    );
     println!("{}", result);
 }
