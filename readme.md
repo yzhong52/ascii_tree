@@ -164,7 +164,7 @@ See details in https://www.rust-lang.org/tools/install.
 Here are some example build and run commands:
 
 ```
-$ cargo run -- horizontal -i examples/with_grandchildren_3.md
+$ cargo run -- horizontal -i examples/with_grandchildren_0.md
 .
 └─ Root
    ├─ Child 1
@@ -227,10 +227,17 @@ cargo add num
 
 ## Release
 
-Step 1. bump version in Cargo.toml
+Step 1: bump version in `Cargo.toml`.
 
-Step 2. publish
+Step 2: publish.
 
 ```
 cargo publish --token <TOEKN>
+```
+
+or 
+
+```
+cargo login
+cargo publish
 ```
