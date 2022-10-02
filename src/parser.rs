@@ -4,7 +4,7 @@ use crate::tree::tree_node::TreeNode;
 use itertools::Itertools;
 use std::fs;
 
-pub fn parse(filename: String) -> TreeNode {
+pub fn parse(filename: &String) -> TreeNode {
     let content: String = fs::read_to_string(filename.clone())
         .expect(format!("Fail to read input file {}", filename).as_str());
 
