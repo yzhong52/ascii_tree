@@ -2,10 +2,12 @@ extern crate clap;
 extern crate itertools;
 
 use crate::parser::parse;
-use crate::tree::drawable::DrawableTreeNode;
+
 use crate::tree::style::BoxDrawings;
 use crate::tree::style::Style;
-use clap::Parser;
+use crate::tree::vertical::DrawableTreeNode;
+use clap::{Parser, Subcommand};
+use tree::horizontal;
 
 mod parser;
 mod tree;
@@ -13,6 +15,44 @@ mod tree;
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
 struct Args {
+    #[clap(subcommand)]
+    command: Command,
+}
+
+impl Args {
+    fn run(self) {
+        match self.command {
+            Command::Vertical(vertical_args) => vertical_args.run(),
+            Command::Horizontal(horizontal_args) => horizontal_args.run(),
+        }
+    }
+}
+
+#[derive(Subcommand, Debug)]
+pub enum Command {
+    /// Print the tree virtually
+    Vertical(VerticalArgs),
+    /// Print the tree horizontally
+    Horizontal(HorizontalArgs),
+}
+
+#[derive(Parser, Debug)]
+pub struct HorizontalArgs {
+    /// The input filename
+    #[clap(short, long, value_parser)]
+    input: String,
+}
+
+impl HorizontalArgs {
+    fn run(&self) {
+        let root = parse(&self.input);
+        println!(".");
+        horizontal::print_nodes(&vec![root], "")
+    }
+}
+
+#[derive(Parser, Debug)]
+pub struct VerticalArgs {
     /// The input filename
     #[clap(short, long, value_parser)]
     input: String,
@@ -27,14 +67,20 @@ struct Args {
     bottom_connection: Option<char>,
 }
 
+impl VerticalArgs {
+    fn run(self) {
+        let root = parse(&self.input);
+        let drawable_root = DrawableTreeNode::new(&root);
+        let result = drawable_root.render(
+            &BoxDrawings::new(self.style),
+            self.top_connection,
+            self.bottom_connection,
+        );
+        println!("{}", result);
+    }
+}
+
 fn main() {
     let args = Args::parse();
-    let root = parse(args.input);
-    let drawable_root = DrawableTreeNode::new(&root);
-    let result = drawable_root.render(
-        &BoxDrawings::new(args.style),
-        args.top_connection,
-        args.bottom_connection,
-    );
-    println!("{}", result);
+    args.run();
 }
