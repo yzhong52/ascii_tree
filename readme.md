@@ -37,7 +37,15 @@ And saved that in a file, such as `tree.md`.
 With an input file `examples/with_grandchildren_0.md`, we can render the tree like this:
 
 ```
-astree horizontal -i examples/with_grandchildren_0.md
+$ astree horizontal -i examples/with_grandchildren_0.md
+.
+└─ Root
+   ├─ Child 1
+   │  ├─ Grandchild 1.1
+   │  └─ Grandchild 1.2
+   ├─ Child 2
+   │  └─ Child 2.1
+   └─ Child 3
 ```
 
 ### Vertical Tree
