@@ -4,7 +4,7 @@ use crate::tree::tree_node::TreeNode;
 use itertools::Itertools;
 use std::fs;
 
-pub fn parse(filename: &String) -> TreeNode {
+pub fn parse(filename: &String) -> Vec<TreeNode> {
     let content: String = fs::read_to_string(filename.clone())
         .expect(format!("Fail to read input file {}", filename).as_str());
 
@@ -31,7 +31,7 @@ fn parse_line(line: &str) -> (usize, String) {
     (count_pound_signs, label.to_string())
 }
 
-fn parse_markdown(content: String) -> TreeNode {
+fn parse_markdown(content: String) -> Vec<TreeNode> {
     let lines: Vec<&str> = content
         .split("\n")
         .map(|x| x.trim())
@@ -39,14 +39,15 @@ fn parse_markdown(content: String) -> TreeNode {
         .filter(|&x| x.starts_with("#"))
         .collect();
 
-    let (_depth, label) = parse_line(lines[0]);
-
-    let root = TreeNode::from_label(label);
+    // Create a dummy node at depth 0
+    let root = TreeNode::from_label_str("[DUMMY]");
 
     let mut stack: Vec<Vec<TreeNode>> = vec![vec![root]];
 
-    for line in &lines[1..] {
-        let (depth, label) = parse_line(line);
+    for line in &lines {
+        let (mut depth, label) = parse_line(line);
+
+        depth += 1;
 
         while depth < stack.len() {
             let children = stack.pop().unwrap();
@@ -71,7 +72,8 @@ fn parse_markdown(content: String) -> TreeNode {
     let mut root_layer = stack.pop().unwrap();
 
     assert_eq!(root_layer.len(), 1);
-    root_layer.pop().unwrap()
+    let dummy_root = root_layer.pop().unwrap();
+    dummy_root.children
 }
 
 #[cfg(test)]

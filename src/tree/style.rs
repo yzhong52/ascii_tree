@@ -1,4 +1,4 @@
-#[derive(clap::ArgEnum, Clone, Debug)]
+#[derive(clap::ArgEnum, Debug, Clone, Copy)]
 pub enum Style {
     Thin,
     Thick,
