@@ -67,6 +67,7 @@ fn parse_markdown(content: String) -> Vec<TreeNode> {
                 nodes: vec![node],
             });
         } else {
+            assert_eq!(depth, stack.last().unwrap().depth);
             stack.last_mut().unwrap().nodes.push(node);
         }
     }
