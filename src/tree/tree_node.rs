@@ -5,7 +5,6 @@ pub struct TreeNode {
 }
 
 impl TreeNode {
-    #[cfg(test)]
     pub fn from_label_str(label: &str) -> Self {
         TreeNode {
             label: label.to_string(),
