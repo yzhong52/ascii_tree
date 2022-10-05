@@ -31,6 +31,11 @@ fn parse_line(line: &str) -> (usize, String) {
     (count_pound_signs, label.to_string())
 }
 
+struct NodeLayer {
+    depth: usize,
+    nodes: Vec<TreeNode>,
+}
+
 fn parse_markdown(content: String) -> Vec<TreeNode> {
     let lines: Vec<&str> = content
         .split("\n")
@@ -39,40 +44,43 @@ fn parse_markdown(content: String) -> Vec<TreeNode> {
         .filter(|&x| x.starts_with("#"))
         .collect();
 
-    // Create a dummy node at depth 0
-    let root = TreeNode::from_label_str("[DUMMY]");
+    // Create a dummy root node at depth 0
+    let root_layer = NodeLayer {
+        depth: 0,
+        nodes: vec![TreeNode::from_label_str("[DUMMY]")],
+    };
 
-    let mut stack: Vec<Vec<TreeNode>> = vec![vec![root]];
+    let mut stack: Vec<NodeLayer> = vec![root_layer];
 
     for line in &lines {
-        let (mut depth, label) = parse_line(line);
+        let (depth, label) = parse_line(line);
 
-        depth += 1;
-
-        while depth < stack.len() {
-            let children = stack.pop().unwrap();
-            stack.last_mut().unwrap().last_mut().unwrap().children = children;
+        while depth < stack.last().unwrap().depth {
+            let top_layer = stack.pop().unwrap();
+            stack.last_mut().unwrap().nodes.last_mut().unwrap().children = top_layer.nodes;
         }
 
         let node = TreeNode::from_label(label);
-        if depth > stack.len() {
-            stack.push(vec![node]);
+        if depth > stack.last().unwrap().depth {
+            stack.push(NodeLayer {
+                depth: depth,
+                nodes: vec![node],
+            });
         } else {
-            assert_eq!(depth, stack.len());
-            stack.last_mut().unwrap().push(node);
+            stack.last_mut().unwrap().nodes.push(node);
         }
     }
 
     while stack.len() > 1 {
-        let children = stack.pop().unwrap();
-        stack.last_mut().unwrap().last_mut().unwrap().children = children;
+        let top_layer = stack.pop().unwrap();
+        stack.last_mut().unwrap().nodes.last_mut().unwrap().children = top_layer.nodes;
     }
 
     assert_eq!(stack.len(), 1);
     let mut root_layer = stack.pop().unwrap();
 
-    assert_eq!(root_layer.len(), 1);
-    let dummy_root = root_layer.pop().unwrap();
+    assert_eq!(root_layer.nodes.len(), 1);
+    let dummy_root = root_layer.nodes.pop().unwrap();
     dummy_root.children
 }
 
@@ -152,5 +160,25 @@ mod tests {
         assert_eq!(nodes[1].label, "Root 2");
         assert_eq!(nodes[1].children.len(), 1);
         assert_eq!(nodes[1].children[0].label, "Child 2.1");
+    }
+
+    #[test]
+    fn test_parse_invalid_children() {
+        let nodes = parse_markdown(
+            r#"
+            # Root 1
+            ### Child 1.1
+            ### Child 1.2
+            # Root 2
+            "#
+            .to_string(),
+        );
+
+        assert_eq!(nodes.len(), 2);
+        assert_eq!(nodes[0].label, "Root 1");
+        assert_eq!(nodes[0].children.len(), 2);
+        assert_eq!(nodes[0].children[0].label, "Child 1.1");
+        assert_eq!(nodes[0].children[1].label, "Child 1.2");
+        assert_eq!(nodes[1].label, "Root 2");
     }
 }
