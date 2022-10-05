@@ -94,16 +94,16 @@ mod tests {
 
     #[test]
     fn test_parse_markdown_root() {
-        let node = parse_markdown("#Root\n".to_string());
-
-        assert_eq!(node.label, "Root");
-        assert_eq!(node.children.len(), 0);
+        let nodes = parse_markdown("#Root\n".to_string());
+        assert_eq!(nodes.len(), 1);
+        assert_eq!(nodes[0].label, "Root");
+        assert_eq!(nodes[0].children.len(), 0);
     }
 
     #[test]
     fn test_parse_markdown_ignore_none_title_lines() {
         // Both empty lines and none-title lines are ignored
-        let node = parse_markdown(
+        let nodes = parse_markdown(
             r#"
             #Root
             hello world
@@ -111,13 +111,14 @@ mod tests {
             .to_string(),
         );
 
-        assert_eq!(node.label, "Root");
-        assert_eq!(node.children.len(), 0);
+        assert_eq!(nodes.len(), 1);
+        assert_eq!(nodes[0].label, "Root");
+        assert_eq!(nodes[0].children.len(), 0);
     }
 
     #[test]
     fn test_parse_markdown_root_with_children() {
-        let node = parse_markdown(
+        let nodes = parse_markdown(
             r#"
             #Root
             ##Child1
@@ -126,7 +127,30 @@ mod tests {
             .to_string(),
         );
 
-        assert_eq!(node.label, "Root");
-        assert_eq!(node.children.len(), 2);
+        assert_eq!(nodes.len(), 1);
+        assert_eq!(nodes[0].label, "Root");
+        assert_eq!(nodes[0].children.len(), 2);
+    }
+
+    #[test]
+    fn test_parse_markdown_multiple_roots() {
+        let nodes = parse_markdown(
+            r#"
+            # Root 1
+            ## Child 1.1
+            ## Child 1.2
+            # Root 2
+            ## Child 2.1
+            "#
+            .to_string(),
+        );
+
+        assert_eq!(nodes.len(), 2);
+        assert_eq!(nodes[0].label, "Root 1");
+        assert_eq!(nodes[0].children.len(), 2);
+
+        assert_eq!(nodes[1].label, "Root 2");
+        assert_eq!(nodes[1].children.len(), 1);
+        assert_eq!(nodes[1].children[0].label, "Child 2.1");
     }
 }
