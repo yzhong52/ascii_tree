@@ -571,6 +571,42 @@ mod layout_tests {
              │ child │      
              └───────┘      "#;
         assert_eq(&result, &expected);
+
+
+
+        let children = vec![TreeNode::from_label("a"), TreeNode::from_label("b")];
+        let root = TreeNode::new("a long root node", children);
+
+        let drawable_root = DrawableTreeNode::new(&root);
+        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+
+        let expected = r#"
+        ┌──────────────────┐
+        │ a long root node │
+        └────────┬─────────┘
+              ┌──┴───┐      
+            ┌─┴─┐  ┌─┴─┐    
+            │ a │  │ b │    
+            └───┘  └───┘    "#;
+        assert_eq(&result, &expected);
+
+
+
+        let children = vec![TreeNode::from_label("a"), TreeNode::from_label("b"), TreeNode::from_label("c")];
+        let root = TreeNode::new("a long root node", children);
+
+        let drawable_root = DrawableTreeNode::new(&root);
+        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+
+        let expected = r#"
+        ┌──────────────────┐
+        │ a long root node │
+        └────────┬─────────┘
+          ┌──────┼──────┐   
+        ┌─┴─┐  ┌─┴─┐  ┌─┴─┐ 
+        │ a │  │ b │  │ c │ 
+        └───┘  └───┘  └───┘ "#;
+        assert_eq(&result, &expected);
     }
 }
 
