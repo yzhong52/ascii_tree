@@ -17,7 +17,32 @@ A command line tool for drawing tree structures with ascii characters.
 
 ## Usage
 
-Install from crates.io <https://crates.io/crates/astree> with `cargo install astree`.
+Install from crates.io <https://crates.io/crates/astree>:
+
+```
+cargo install astree
+```
+
+Check out the help message:
+
+```
+$ astree --help
+
+astree 0.2.2
+ A command line tool for drawing tree structures with ascii characters
+
+USAGE:
+    astree <SUBCOMMAND>
+
+OPTIONS:
+    -h, --help       Print help information
+    -V, --version    Print version information
+
+SUBCOMMANDS:
+    help          Print this message or the help of the given subcommand(s)
+    horizontal    Print the tree horizontally
+    vertical      Print the tree virtually
+```
 
 Create an input file following the markdown syntax, such as:
 
@@ -100,22 +125,6 @@ astree vertical --input examples/with_grandchildren_1.md --style double
 ╚══════════════╝  ╚══════════════╝
 ```
 
-With special top connection:
-
-```
-astree vertical --input examples/with_grandchildren_1.md --top-connection ▼
-             ┌──────┐
-             │ Root │
-             └──┬───┘
-           ┌────▼────┐
-           │ Child 1 │
-           └────┬────┘
-       ┌────────┴────────┐
-┌──────▼───────┐  ┌──────▼───────┐
-│ Grandchild 1 │  │ Grandchild 2 │
-└──────────────┘  └──────────────┘
-```
-
 With chest style:
 
 ```
@@ -138,12 +147,12 @@ astree vertical --input examples/with_grandchildren_2.md --style chest
 With balloon style:
 
 ```
-astree vertical --input examples/with_children_2.md --style balloon --top-connection ☐ --bottom-connection ┰
-   ╭───────────╮
-   │ Root Node │
-   ╰─────┰─────╯
-    ╭────┴─────╮
-╭───☐───╮  ╭───☐───╮
+astree vertical --input examples/with_children_2.md --style balloon --top-connection ¤ --bottom-connection ¤ 
+   ╭───────────╮    
+   │ Root Node │    
+   ╰─────¤─────╯    
+    ╭────┴─────╮    
+╭───¤───╮  ╭───¤───╮
 │ Child │  │ Child │
 │  (1)  │  │  (2)  │
 ╰───────╯  ╰───────╯
