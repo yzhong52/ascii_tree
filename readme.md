@@ -53,9 +53,13 @@ Create an input file following the markdown syntax, such as:
 ### Grandchild 2
 ```
 
-Here, an extra `#` indicates a nested child.
+Here, an extra `#` indicates a nested child. And saved that in a file, such as `tree.md`.
 
-And saved that in a file, such as `tree.md`.
+Render the tree like so:
+
+```
+astree horizontal -i tree.md
+```
 
 ### Horizontal Tree
 
