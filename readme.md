@@ -100,22 +100,6 @@ astree vertical --input examples/with_grandchildren_1.md --style double
 ╚══════════════╝  ╚══════════════╝
 ```
 
-With special top connection:
-
-```
-astree vertical --input examples/with_grandchildren_1.md --top-connection ▼
-             ┌──────┐
-             │ Root │
-             └──┬───┘
-           ┌────▼────┐
-           │ Child 1 │
-           └────┬────┘
-       ┌────────┴────────┐
-┌──────▼───────┐  ┌──────▼───────┐
-│ Grandchild 1 │  │ Grandchild 2 │
-└──────────────┘  └──────────────┘
-```
-
 With chest style:
 
 ```
@@ -138,12 +122,12 @@ astree vertical --input examples/with_grandchildren_2.md --style chest
 With balloon style:
 
 ```
-astree vertical --input examples/with_children_2.md --style balloon --top-connection ☐ --bottom-connection ┰
-   ╭───────────╮
-   │ Root Node │
-   ╰─────┰─────╯
-    ╭────┴─────╮
-╭───☐───╮  ╭───☐───╮
+astree vertical --input examples/with_children_2.md --style balloon --top-connection ¤ --bottom-connection ¤ 
+   ╭───────────╮    
+   │ Root Node │    
+   ╰─────¤─────╯    
+    ╭────┴─────╮    
+╭───¤───╮  ╭───¤───╮
 │ Child │  │ Child │
 │  (1)  │  │  (2)  │
 ╰───────╯  ╰───────╯
