@@ -97,22 +97,25 @@ impl DrawableTreeNode {
             }
         };
 
+        //    ┌------┐
+        //    │      │
+        //    └------┘
+        //       ↑↑
+        //    01234567
+        // When node_width is even (e.g. 8), we have two options (position 3 & 4 above).
+        // We choose to put the center closer to the left (position 3 above).
+        let center_of_current_box = (node_width - 1) / 2;
+
         let center_x = match (drawable_children.first(), drawable_children.last()) {
             (Some(first), Some(last)) => {
                 // If there are children, let's put the current node to middle of
                 // all the children.
-                (first.center_x + children_width - last.overall_width + last.center_x) / 2
+                max(
+                    center_of_current_box,
+                    (first.center_x + children_width - last.overall_width + last.center_x) / 2,
+                )
             }
-            _ => {
-                //    ┌------┐
-                //    │      │
-                //    └------┘
-                //       ↑↑
-                //    01234567
-                // When node_width is even (e.g. 8), we have two options (position 3 & 4 above).
-                // We choose to put the center closer to the left (position 3 above).
-                (node_width - 1) / 2
-            }
+            _ => center_of_current_box,
         };
 
         DrawableTreeNode {
@@ -124,6 +127,18 @@ impl DrawableTreeNode {
             labels: labels,
             children: drawable_children,
         }
+    }
+
+    pub fn compute_children_width(drawable_children: &Vec<DrawableTreeNode>) -> usize {
+        if drawable_children.len() == 0 {
+            return 0;
+        }
+
+        drawable_children
+            .iter()
+            .map(|child| child.overall_width)
+            .sum::<usize>()
+            + (drawable_children.len() - 1) * HORIZONTAL_CHILDREN_BUFFER
     }
 
     pub fn render(
@@ -203,14 +218,25 @@ impl DrawableTreeNode {
             buffer[origin.y][origin.x + self.center_x] =
                 top_connection.unwrap_or(style.up_and_horizontal);
         }
+
+        self.render_children(buffer, origin, style, top_connection, bottom_connection);
+    }
+
+    fn render_children(
+        &self,
+        buffer: &mut Vec<Vec<char>>,
+        origin: &Point2D<usize>,
+        style: &BoxDrawings,
+        top_connection: Option<char>,
+        bottom_connection: Option<char>,
+    ) {
+        // Draw children
         if self.children.len() != 0 {
             // Bottom connection
             buffer[origin.y + self.height - 1][origin.x + self.center_x] =
                 bottom_connection.unwrap_or(style.down_and_horizontal);
 
-            let mut child_origin: Point2D<usize>;
-
-            if self.children.len() > 1 {
+            let child_origin_y = if self.children.len() > 1 {
                 // More than 1 direct children, vertical buffer needed.
                 //         ┌──────┐
                 //         │ Root │
@@ -219,10 +245,7 @@ impl DrawableTreeNode {
                 // ┌────┴────┐  ┌────┴────┐
                 // │ Child 1 │  │ Child 2 │
                 // └─────────┘  └─────────┘
-                child_origin = Point2D {
-                    x: origin.x,
-                    y: origin.y + self.height + VERTICAL_LAYER_BUFFER,
-                };
+                origin.y + self.height + VERTICAL_LAYER_BUFFER
             } else {
                 // With single children, no vertical buffer needed.
                 //     ┌──────┐
@@ -231,11 +254,20 @@ impl DrawableTreeNode {
                 //   ┌────┴────┐
                 //   │ Child 1 │
                 //   └─────────┘
-                child_origin = Point2D {
-                    x: origin.x,
-                    y: origin.y + self.height,
-                };
-            }
+                origin.y + self.height
+            };
+
+            let children_with = DrawableTreeNode::compute_children_width(&self.children);
+            let child_origin_x = if self.children.len() == 0 || children_with > self.width {
+                origin.x
+            } else {
+                origin.x + (self.width - children_with) / 2
+            };
+
+            let mut child_origin: Point2D<usize> = Point2D {
+                x: child_origin_x,
+                y: child_origin_y,
+            };
 
             for child_id in 0..self.children.len() {
                 let child = &self.children[child_id];
@@ -380,7 +412,7 @@ mod layout_tests {
 
     #[test]
     fn test_root() {
-        let root = TreeNode::from_label_str("root");
+        let root = TreeNode::from_label("root");
         let drawable_root = DrawableTreeNode::new(&root);
         let result = drawable_root.render(&BoxDrawings::THIN, None, None);
         let expected = r#"
@@ -392,7 +424,7 @@ mod layout_tests {
 
     #[test]
     fn test_root_with_one_child() {
-        let child1 = TreeNode::from_label_str("child1");
+        let child1 = TreeNode::from_label("child1");
         let root = TreeNode::new("root", vec![child1]);
 
         let drawable_root = DrawableTreeNode::new(&root);
@@ -410,8 +442,8 @@ mod layout_tests {
 
     #[test]
     fn test_root_with_two_children() {
-        let child1 = TreeNode::from_label_str("child1");
-        let child2 = TreeNode::from_label_str("child2");
+        let child1 = TreeNode::from_label("child1");
+        let child2 = TreeNode::from_label("child2");
         let root = TreeNode::new("root", vec![child1, child2]);
 
         let drawable_root = DrawableTreeNode::new(&root);
@@ -430,9 +462,9 @@ mod layout_tests {
 
     #[test]
     fn test_root_with_three_children() {
-        let child1 = TreeNode::from_label_str("child1");
-        let child2 = TreeNode::from_label_str("child2");
-        let child3 = TreeNode::from_label_str("child3");
+        let child1 = TreeNode::from_label("child1");
+        let child2 = TreeNode::from_label("child2");
+        let child3 = TreeNode::from_label("child3");
         let root = TreeNode::new("root", vec![child1, child2, child3]);
 
         let drawable_root = DrawableTreeNode::new(&root);
@@ -451,9 +483,9 @@ mod layout_tests {
 
     #[test]
     fn test_root_with_grandchildren() {
-        let grandchild1 = TreeNode::from_label_str("grandchild1");
-        let grandchild2 = TreeNode::from_label_str("grandchild2");
-        let grandchild3 = TreeNode::from_label_str("grandchild3");
+        let grandchild1 = TreeNode::from_label("grandchild1");
+        let grandchild2 = TreeNode::from_label("grandchild2");
+        let grandchild3 = TreeNode::from_label("grandchild3");
 
         let child1 = TreeNode::new("child1", vec![grandchild1, grandchild2]);
         let child2 = TreeNode::new("child2", vec![grandchild3]);
@@ -480,7 +512,7 @@ mod layout_tests {
 
     #[test]
     fn test_multi_line_label() {
-        let root = TreeNode::from_label_str("Root\\nNode");
+        let root = TreeNode::from_label("Root\\nNode");
         let drawable_root = DrawableTreeNode::new(&root);
         let result = drawable_root.render(&BoxDrawings::THIN, None, None);
         let expected = r#"
@@ -493,9 +525,9 @@ mod layout_tests {
 
     #[test]
     fn test_multi_line_label_with_grandchildren() {
-        let grandchild1 = TreeNode::from_label_str("grandchild1\\nnode");
-        let grandchild2 = TreeNode::from_label_str("grandchild2\\nnode");
-        let grandchild3 = TreeNode::from_label_str("grandchild3\\nnode");
+        let grandchild1 = TreeNode::from_label("grandchild1\\nnode");
+        let grandchild2 = TreeNode::from_label("grandchild2\\nnode");
+        let grandchild3 = TreeNode::from_label("grandchild3\\nnode");
 
         let child1 = TreeNode::new("child1\\nnode", vec![grandchild1, grandchild2]);
         let child2 = TreeNode::new("child2\\nnode", vec![grandchild3]);
@@ -522,6 +554,24 @@ mod layout_tests {
         └─────────────┘  └─────────────┘                 "#;
         assert_eq(&result, &expected);
     }
+
+    #[test]
+    fn test_parent_wider_than_children() {
+        let child1 = TreeNode::from_label("child");
+        let root = TreeNode::new("a long root node", vec![child1]);
+
+        let drawable_root = DrawableTreeNode::new(&root);
+        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+
+        let expected = r#"
+        ┌──────────────────┐
+        │ a long root node │
+        └────────┬─────────┘
+             ┌───┴───┐      
+             │ child │      
+             └───────┘      "#;
+        assert_eq(&result, &expected);
+    }
 }
 
 #[cfg(test)]
@@ -534,8 +584,8 @@ mod style_tests {
 
     #[fixture]
     pub fn drawable() -> DrawableTreeNode {
-        let child1: TreeNode = TreeNode::from_label_str("child1");
-        let child2: TreeNode = TreeNode::from_label_str("child2");
+        let child1: TreeNode = TreeNode::from_label("child1");
+        let child2: TreeNode = TreeNode::from_label("child2");
         let root: TreeNode = TreeNode::new("root", vec![child1, child2]);
         DrawableTreeNode::new(&root)
     }

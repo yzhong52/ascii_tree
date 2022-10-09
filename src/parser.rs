@@ -47,7 +47,7 @@ fn parse_markdown(content: String) -> Vec<TreeNode> {
     // Create a dummy root node at depth 0
     let root_layer = NodeLayer {
         depth: 0,
-        nodes: vec![TreeNode::from_label_str("[DUMMY]")],
+        nodes: vec![TreeNode::from_label("[DUMMY]")],
     };
 
     let mut stack: Vec<NodeLayer> = vec![root_layer];
@@ -60,7 +60,7 @@ fn parse_markdown(content: String) -> Vec<TreeNode> {
             stack.last_mut().unwrap().nodes.last_mut().unwrap().children = top_layer.nodes;
         }
 
-        let node = TreeNode::from_label(label);
+        let node = TreeNode::from_label(&label);
         if depth > stack.last().unwrap().depth {
             stack.push(NodeLayer {
                 depth: depth,

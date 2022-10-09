@@ -5,16 +5,9 @@ pub struct TreeNode {
 }
 
 impl TreeNode {
-    pub fn from_label_str(label: &str) -> Self {
+    pub fn from_label(label: &str) -> Self {
         TreeNode {
             label: label.to_string(),
-            children: vec![],
-        }
-    }
-
-    pub fn from_label(label: String) -> Self {
-        TreeNode {
-            label: label,
             children: vec![],
         }
     }
