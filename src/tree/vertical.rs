@@ -508,12 +508,10 @@ mod layout_tests {
         ┌──────────────────┐
         │ a long root node │
         └────────┬─────────┘
-             ┌───┴───┐      
-             │ child │      
+             ┌───┴───┐
+             │ child │
              └───────┘      "#;
-        assert_eq(&result, &expected);
-
-
+        assert_canonical_eq(&result, &expected);
 
         let children = vec![TreeNode::from_label("a"), TreeNode::from_label("b")];
         let root = TreeNode::new("a long root node", children);
@@ -525,15 +523,17 @@ mod layout_tests {
         ┌──────────────────┐
         │ a long root node │
         └────────┬─────────┘
-              ┌──┴───┐      
-            ┌─┴─┐  ┌─┴─┐    
-            │ a │  │ b │    
+              ┌──┴───┐
+            ┌─┴─┐  ┌─┴─┐
+            │ a │  │ b │
             └───┘  └───┘    "#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
 
-
-
-        let children = vec![TreeNode::from_label("a"), TreeNode::from_label("b"), TreeNode::from_label("c")];
+        let children = vec![
+            TreeNode::from_label("a"),
+            TreeNode::from_label("b"),
+            TreeNode::from_label("c"),
+        ];
         let root = TreeNode::new("a long root node", children);
 
         let drawable_root = DrawableTreeNode::new(&root);
@@ -543,11 +543,11 @@ mod layout_tests {
         ┌──────────────────┐
         │ a long root node │
         └────────┬─────────┘
-          ┌──────┼──────┐   
-        ┌─┴─┐  ┌─┴─┐  ┌─┴─┐ 
-        │ a │  │ b │  │ c │ 
+          ┌──────┼──────┐
+        ┌─┴─┐  ┌─┴─┐  ┌─┴─┐
+        │ a │  │ b │  │ c │
         └───┘  └───┘  └───┘ "#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 }
 
