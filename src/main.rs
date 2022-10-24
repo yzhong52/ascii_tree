@@ -47,7 +47,7 @@ impl HorizontalArgs {
     fn run(&self) {
         let root_nodes = parse(&self.input);
         println!(".");
-        horizontal::print_nodes(&root_nodes, "")
+        horizontal::print_nodes_std(&root_nodes)
     }
 }
 

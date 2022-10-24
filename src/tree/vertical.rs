@@ -347,68 +347,9 @@ impl DrawableTreeNode {
 }
 
 #[cfg(test)]
-mod tests {
-    pub fn assert_eq(left: &String, right: &str) {
-        let left_rows = left.split('\n').collect::<Vec<&str>>();
-        let right_rows = right
-            .split('\n')
-            .filter(|line| line.len() != 0)
-            .collect::<Vec<&str>>();
-
-        let extra_leading = right_rows
-            .iter()
-            .map(|line| {
-                for (index, ch) in line.chars().enumerate() {
-                    if ch != ' ' {
-                        return index;
-                    }
-                }
-
-                line.len()
-            })
-            .min()
-            .unwrap();
-
-        // Remove extra leadings
-        let right_rows: Vec<&str> = right_rows.iter().map(|row| &row[extra_leading..]).collect();
-
-        assert_eq!(
-            left_rows.len(),
-            right_rows.len(),
-            "Left:\n{}\nRight:\n{}\n",
-            left,
-            right_rows.join("\n")
-        );
-
-        let row_by_row_comparison: String = left_rows
-            .iter()
-            .zip(right_rows.iter())
-            .enumerate()
-            .map(|(index, row)| {
-                let (left_row, right_row) = row;
-                format!("{:5}: {}|{}", index, left_row, right_row)
-            })
-            .collect::<Vec<String>>()
-            .join("\n");
-
-        for row in 0..left_rows.len() {
-            assert_eq!(
-                left_rows[row],
-                right_rows[row],
-                "\nDiffer from row {}:\n{}\nLeft:\n{}\nRight:\n{}",
-                row,
-                row_by_row_comparison,
-                left,
-                right_rows.join("\n")
-            );
-        }
-    }
-}
-
-#[cfg(test)]
 mod layout_tests {
-    use super::tests::assert_eq;
     use super::*;
+    use tree::test_utils::assert_canonical_eq;
 
     #[test]
     fn test_root() {
@@ -419,7 +360,7 @@ mod layout_tests {
         ┌──────┐
         │ root │
         └──────┘"#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 
     #[test]
@@ -431,13 +372,13 @@ mod layout_tests {
         let result = drawable_root.render(&BoxDrawings::THIN, None, None);
 
         let expected = r#"
-         ┌──────┐ 
-         │ root │ 
-         └──┬───┘ 
+         ┌──────┐
+         │ root │
+         └──┬───┘
         ┌───┴────┐
         │ child1 │
         └────────┘"#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 
     #[test]
@@ -450,14 +391,14 @@ mod layout_tests {
         let result = drawable_root.render(&BoxDrawings::THIN, None, None);
 
         let expected = r#"
-                ┌──────┐       
-                │ root │       
-                └──┬───┘       
-             ┌─────┴─────┐     
-         ┌───┴────┐  ┌───┴────┐
-         │ child1 │  │ child2 │
-         └────────┘  └────────┘"#;
-        assert_eq(&result, &expected);
+               ┌──────┐
+               │ root │
+               └──┬───┘
+            ┌─────┴─────┐
+        ┌───┴────┐  ┌───┴────┐
+        │ child1 │  │ child2 │
+        └────────┘  └────────┘"#;
+        assert_canonical_eq(&result, &expected);
     }
 
     #[test]
@@ -471,14 +412,14 @@ mod layout_tests {
         let result = drawable_root.render(&BoxDrawings::THIN, None, None);
 
         let expected = r#"
-                     ┌──────┐             
-                     │ root │             
-                     └──┬───┘             
-            ┌───────────┼───────────┐     
+                     ┌──────┐
+                     │ root │
+                     └──┬───┘
+            ┌───────────┼───────────┐
         ┌───┴────┐  ┌───┴────┐  ┌───┴────┐
         │ child1 │  │ child2 │  │ child3 │
         └────────┘  └────────┘  └────────┘"#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 
     #[test]
@@ -496,18 +437,18 @@ mod layout_tests {
         let result = drawable_root.render(&BoxDrawings::THIN, None, None);
 
         let expected = r#"
-                                 ┌──────┐                
-                                 │ root │                
-                                 └──┬───┘                
-                       ┌────────────┴────────────┐       
-                   ┌───┴────┐                ┌───┴────┐  
-                   │ child1 │                │ child2 │  
-                   └───┬────┘                └───┬────┘  
+                                 ┌──────┐
+                                 │ root │
+                                 └──┬───┘
+                       ┌────────────┴────────────┐
+                   ┌───┴────┐                ┌───┴────┐
+                   │ child1 │                │ child2 │
+                   └───┬────┘                └───┬────┘
                ┌───────┴────────┐         ┌──────┴──────┐
         ┌──────┴──────┐  ┌──────┴──────┐  │ grandchild3 │
         │ grandchild1 │  │ grandchild2 │  └─────────────┘
         └─────────────┘  └─────────────┘                 "#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 
     #[test]
@@ -520,7 +461,7 @@ mod layout_tests {
         │ Root │
         │ Node │
         └──────┘"#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 
     #[test]
@@ -538,21 +479,21 @@ mod layout_tests {
         let result = drawable_root.render(&BoxDrawings::THIN, None, None);
 
         let expected = r#"
-                                 ┌──────┐                
-                                 │ root │                
-                                 │ node │                
-                                 └──┬───┘                
-                       ┌────────────┴────────────┐       
-                   ┌───┴────┐                ┌───┴────┐  
-                   │ child1 │                │ child2 │  
-                   │  node  │                │  node  │  
-                   └───┬────┘                └───┬────┘  
+                                 ┌──────┐
+                                 │ root │
+                                 │ node │
+                                 └──┬───┘
+                       ┌────────────┴────────────┐
+                   ┌───┴────┐                ┌───┴────┐
+                   │ child1 │                │ child2 │
+                   │  node  │                │  node  │
+                   └───┬────┘                └───┬────┘
                ┌───────┴────────┐         ┌──────┴──────┐
         ┌──────┴──────┐  ┌──────┴──────┐  │ grandchild3 │
         │ grandchild1 │  │ grandchild2 │  │    node     │
         │    node     │  │    node     │  └─────────────┘
         └─────────────┘  └─────────────┘                 "#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 
     #[test]
@@ -615,8 +556,8 @@ mod style_tests {
     extern crate rstest;
 
     use self::rstest::*;
-    use super::tests::assert_eq;
     use super::*;
+    use tree::test_utils::assert_canonical_eq;
 
     #[fixture]
     pub fn drawable() -> DrawableTreeNode {
@@ -630,55 +571,55 @@ mod style_tests {
     fn test_style_thin(drawable: DrawableTreeNode) {
         let result = drawable.render(&BoxDrawings::THIN, None, None);
         let expected = r#"
-                ┌──────┐       
-                │ root │       
-                └──┬───┘       
-             ┌─────┴─────┐     
-         ┌───┴────┐  ┌───┴────┐
-         │ child1 │  │ child2 │
-         └────────┘  └────────┘"#;
-        assert_eq(&result, &expected);
+               ┌──────┐
+               │ root │
+               └──┬───┘
+            ┌─────┴─────┐
+        ┌───┴────┐  ┌───┴────┐
+        │ child1 │  │ child2 │
+        └────────┘  └────────┘"#;
+        assert_canonical_eq(&result, &expected);
     }
 
     #[rstest]
     fn test_style_thick(drawable: DrawableTreeNode) {
         let result = drawable.render(&BoxDrawings::THICK, None, None);
         let expected = r#"
-               ┏━━━━━━┓       
-               ┃ root ┃       
-               ┗━━┳━━━┛       
-            ┏━━━━━┻━━━━━┓     
+               ┏━━━━━━┓
+               ┃ root ┃
+               ┗━━┳━━━┛
+            ┏━━━━━┻━━━━━┓
         ┏━━━┻━━━━┓  ┏━━━┻━━━━┓
         ┃ child1 ┃  ┃ child2 ┃
         ┗━━━━━━━━┛  ┗━━━━━━━━┛"#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 
     #[rstest]
     fn test_style_double(drawable: DrawableTreeNode) {
         let result = drawable.render(&BoxDrawings::DOUBLE, None, None);
         let expected = r#"
-               ╔══════╗       
-               ║ root ║       
-               ╚══╦═══╝       
-            ╔═════╩═════╗     
+               ╔══════╗
+               ║ root ║
+               ╚══╦═══╝
+            ╔═════╩═════╗
         ╔═══╩════╗  ╔═══╩════╗
         ║ child1 ║  ║ child2 ║
         ╚════════╝  ╚════════╝"#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 
     #[rstest]
     fn test_style_with_top_connection(drawable: DrawableTreeNode) {
         let result = drawable.render(&BoxDrawings::THIN, Some('▼'), None);
         let expected = r#"
-               ┌──────┐       
-               │ root │       
-               └──┬───┘       
-            ┌─────┴─────┐     
+               ┌──────┐
+               │ root │
+               └──┬───┘
+            ┌─────┴─────┐
         ┌───▼────┐  ┌───▼────┐
         │ child1 │  │ child2 │
         └────────┘  └────────┘"#;
-        assert_eq(&result, &expected);
+        assert_canonical_eq(&result, &expected);
     }
 }
