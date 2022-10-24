@@ -11,6 +11,7 @@ use tree::horizontal;
 
 mod parser;
 mod tree;
+mod test_utils;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
@@ -47,7 +48,7 @@ impl HorizontalArgs {
     fn run(&self) {
         let root_nodes = parse(&self.input);
         println!(".");
-        horizontal::print_nodes(&root_nodes, "")
+        horizontal::print_nodes_std(&root_nodes)
     }
 }
 
