@@ -34,8 +34,8 @@ pub fn assert_canonical_eq(left: &str, right: &str) {
     let mut differ_from_row: Option<usize> = None;
     let mut row_by_row_comparison = vec![];
     for row_idx in 0..std::cmp::max(left_rows.len(), right_rows.len()) {
-        let left_row_with_padding = pad_to_len(&left_rows, row_idx, max_left_width);
-        let right_row_with_padding = pad_to_len(&right_rows, row_idx, max_right_width);
+        let left_row_with_padding = pad_to_width(&left_rows, row_idx, max_left_width);
+        let right_row_with_padding = pad_to_width(&right_rows, row_idx, max_right_width);
 
         let comparison_result: String;
         if left_row_with_padding.trim() != right_row_with_padding.trim()
@@ -64,17 +64,15 @@ pub fn assert_canonical_eq(left: &str, right: &str) {
     );
 }
 
-fn pad_to_len(rows: &Vec<&str>, idx: usize, len: usize) -> String {
-    let mut output = if idx < rows.len() {
+#[cfg(test)]
+fn pad_to_width(rows: &Vec<&str>, idx: usize, width: usize) -> String {
+    let output = if idx < rows.len() {
         rows[idx].to_string()
     } else {
         "".to_string()
     };
 
-    while output.chars().count() < len {
-        output += " "
-    }
-    output
+    format!("{: ^width$}", output, width = width)
 }
 
 #[cfg(test)]
