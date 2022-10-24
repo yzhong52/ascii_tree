@@ -24,7 +24,7 @@ fn print_nodes(children: &Vec<TreeNode>, prefix: &str, output: &mut impl Write) 
 #[cfg(test)]
 mod layout_tests {
     use super::*;
-    use tree::test_utils::assert_canonical_eq;
+    use crate::test_utils::assert_canonical_eq;
 
     #[test]
     fn test_print_single_root() {
@@ -34,14 +34,14 @@ mod layout_tests {
 
         assert_canonical_eq(
             r#"
-            └─ Root 1
+            └─ Root
             "#,
             str::from_utf8(&output).expect("Invalid UTF-8"),
         )
     }
 
     #[test]
-    fn test_print_single_root_with_two_childrend() {
+    fn test_print_single_root_with_two_children() {
         let mut output: Vec<u8> = Vec::new();
 
         print_nodes(
@@ -101,7 +101,13 @@ mod layout_tests {
                         TreeNode::new("Child 2", vec![]),
                     ],
                 ),
-                TreeNode::new("Root 2", vec![]),
+                TreeNode::new(
+                    "Root 2",
+                    vec![
+                        TreeNode::new("Child 3", vec![]),
+                        TreeNode::new("Child 4", vec![]),
+                    ],
+                ),
             ],
             "",
             &mut output,
@@ -110,7 +116,11 @@ mod layout_tests {
         assert_canonical_eq(
             r#"
             ├─ Root 1
+            │  ├─ Child 1
+            │  └─ Child 2
             └─ Root 2
+               ├─ Child 3
+               └─ Child 4
             "#,
             str::from_utf8(&output).expect("Invalid UTF-8"),
         )

@@ -11,6 +11,7 @@ use tree::horizontal;
 
 mod parser;
 mod tree;
+mod test_utils;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]

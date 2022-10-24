@@ -349,7 +349,7 @@ impl DrawableTreeNode {
 #[cfg(test)]
 mod layout_tests {
     use super::*;
-    use tree::test_utils::assert_canonical_eq;
+    use crate::test_utils::assert_canonical_eq;
 
     #[test]
     fn test_root() {
@@ -557,7 +557,7 @@ mod style_tests {
 
     use self::rstest::*;
     use super::*;
-    use tree::test_utils::assert_canonical_eq;
+    use crate::test_utils::assert_canonical_eq;
 
     #[fixture]
     pub fn drawable() -> DrawableTreeNode {
