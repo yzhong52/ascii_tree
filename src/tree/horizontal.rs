@@ -9,9 +9,7 @@ pub fn print_nodes_std(children: &Vec<TreeNode>) {
 }
 
 // This function allow us to write unit tests easily
-fn print_nodes(children: &Vec<TreeNode>, output: &mut impl Write) {
-    _ = output.write_all(".\n".as_bytes());
-
+fn print_nodes(roots: &Vec<TreeNode>, output: &mut impl Write) {
     fn print_nodes_internal(children: &Vec<TreeNode>, prefix: &str, output: &mut impl Write) {
         for (idx, child) in children.iter().enumerate() {
             if idx < children.len() - 1 {
@@ -24,7 +22,18 @@ fn print_nodes(children: &Vec<TreeNode>, output: &mut impl Write) {
         }
     }
 
-    print_nodes_internal(children, "", output)
+    let mut write_line = |buf: &str| {
+        _ = output.write_all(format!("{}\n", buf).as_bytes());
+    };
+
+    if roots.len() > 1 {
+        // if there are more than one root nodes, let's add an artificial dot as the global root
+        write_line(".");
+        print_nodes_internal(&roots, "", output)
+    } else if roots.len() == 1 {
+        write_line(&roots[0].label);
+        print_nodes_internal(&roots[0].children, "", output)
+    }
 }
 
 #[cfg(test)]
@@ -40,8 +49,7 @@ mod layout_tests {
 
         assert_canonical_eq(
             r#"
-            .
-            └─ Root
+            Root
             "#,
             str::from_utf8(&output).expect("Invalid UTF-8"),
         )
@@ -64,10 +72,9 @@ mod layout_tests {
 
         assert_canonical_eq(
             r#"
-            .
-            └─ Root
-               ├─ Child 1
-               └─ Child 2
+            Root
+            ├─ Child 1
+            └─ Child 2
             "#,
             str::from_utf8(&output).expect("Invalid UTF-8"),
         )

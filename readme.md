@@ -62,11 +62,10 @@ Here, each additional `#` indicates a nested child.
 Output:
 
 ```
-.
-└─ Root
-   └─ Child 1
-      ├─ Grandchild 1
-      └─ Grandchild 2
+Root
+└─ Child 1
+   ├─ Grandchild 1
+   └─ Grandchild 2
 ```
 
 ### Input From File
@@ -89,32 +88,42 @@ astree horizontal -i tree.md
 Output:
 
 ```
-.
-└─ Root
-   └─ Child 1
-      ├─ Grandchild 1
-      └─ Grandchild 2
+Root
+└─ Child 1
+   ├─ Grandchild 1
+   └─ Grandchild 2
 ```
 
 ### Horizontal Tree
 
-With an input file `examples/with_grandchildren_0.md`, we can render the tree like this:
+Example of drawing a horizontal tree:
 
 ```
 $ astree horizontal -i examples/with_grandchildren_0.md
-.
-└─ Root
-   ├─ Child 1
-   │  ├─ Grandchild 1.1
-   │  └─ Grandchild 1.2
-   ├─ Child 2
-   │  └─ Child 2.1
-   └─ Child 3
+Root
+├─ Child 1
+│  ├─ Grandchild 1.1
+│  └─ Grandchild 1.2
+├─ Child 2
+│  └─ Child 2.1
+└─ Child 3
 ```
 
+Example of drawing a tree with multiple root nodes:
+```
+$ astree horizontal -i examples/multi_tree.md          
+.
+├─ Root 1
+│  ├─ Child 1.1
+│  │  ├─ Grandchild 1.1.1
+│  │  └─ Grandchild 1.1.2
+│  └─ Child 1.2
+└─ Root 2
+   └─ Child 2.1
+```
 ### Vertical Tree
 
-With an input file `examples/with_grandchildren_1.md`, we can render the tree like this:
+Example of drawing a vertical tree:
 
 ```
 astree vertical --input examples/with_grandchildren_1.md
@@ -128,6 +137,29 @@ astree vertical --input examples/with_grandchildren_1.md
 ┌──────┴───────┐  ┌──────┴───────┐
 │ Grandchild 1 │  │ Grandchild 2 │
 └──────────────┘  └──────────────┘
+```
+
+Example of drawing a forest with multiple root nodes:
+
+```
+$ astree vertical -i examples/multi_tree.md    
+                               ┌────────┐                
+                               │ Root 1 │                
+                               └───┬────┘                
+                    ┌──────────────┴──────────────┐      
+              ┌─────┴─────┐                 ┌─────┴─────┐
+              │ Child 1.1 │                 │ Child 1.2 │
+              └─────┬─────┘                 └───────────┘
+         ┌──────────┴──────────┐                         
+┌────────┴─────────┐  ┌────────┴─────────┐               
+│ Grandchild 1.1.1 │  │ Grandchild 1.1.2 │               
+└──────────────────┘  └──────────────────┘               
+  ┌────────┐ 
+  │ Root 2 │ 
+  └───┬────┘ 
+┌─────┴─────┐
+│ Child 2.1 │
+└───────────┘
 ```
 
 #### Virtual Tree Styles
@@ -205,11 +237,11 @@ astree vertical --input examples/with_children_2.md --style balloon2
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-See details in https://www.rust-lang.org/tools/install.
+See details at https://www.rust-lang.org/tools/install.
 
 ### Build & Run
 
-Here are some example build and run commands:
+Here are some examples of building and running:
 
 ```
 $ cargo run -- horizontal -i examples/with_grandchildren_0.md
@@ -239,7 +271,7 @@ $ cargo run -- vertical -i examples/with_grandchildren_1.md
 
 ### Install Astree
 
-Install local version:
+Install the local version:
 
 ```
 git clone git@github.com:yzhong52/ascii_tree.git
