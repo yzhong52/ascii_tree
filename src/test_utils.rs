@@ -43,12 +43,20 @@ pub fn assert_canonical_eq(left: &str, right: &str) {
         {
             differ_from_row = Some(row_idx);
             comparison_result = format!(
-                "{:5}: {} | {} 👈👈👈 differ from row: {}",
+                "{:5}: '{}' | '{}' 👈👈👈 differ from row: {}",
                 row_idx, left_row_with_padding, right_row_with_padding, row_idx
+            )
+        } else if left_row_with_padding.trim() != right_row_with_padding.trim()
+            && differ_from_row.is_none()
+        {
+            differ_from_row = Some(row_idx);
+            comparison_result = format!(
+                "{:5}: '{}' | '{}' 👈",
+                row_idx, left_row_with_padding, right_row_with_padding
             )
         } else {
             comparison_result = format!(
-                "{:5}: {} | {}",
+                "{:5}: '{}' | '{}'",
                 row_idx, left_row_with_padding, right_row_with_padding
             )
         }
@@ -72,7 +80,12 @@ fn pad_to_width(rows: &Vec<&str>, idx: usize, width: usize) -> String {
         "".to_string()
     };
 
-    format!("{: ^width$}", output, width = width)
+    //         '<' is for left align
+    //          |
+    format!("{: <width$}", output, width = width)
+    //         |
+    //         using ' ' for padding
+
 }
 
 #[cfg(test)]

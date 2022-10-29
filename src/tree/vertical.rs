@@ -141,17 +141,10 @@ impl DrawableTreeNode {
             + (drawable_children.len() - 1) * HORIZONTAL_CHILDREN_BUFFER
     }
 
-    pub fn render(
-        &self,
-        style: &BoxDrawings,
-    ) -> String {
+    pub fn render(&self, style: &BoxDrawings) -> String {
         let mut canvas: Vec<Vec<char>> = vec![vec![' '; self.overall_width]; self.overall_height];
 
-        self.render_internal(
-            &mut canvas,
-            &Point2D { x: 0, y: 0 },
-            &style,
-        );
+        self.render_internal(&mut canvas, &Point2D { x: 0, y: 0 }, &style);
 
         canvas
             .iter()
@@ -210,7 +203,7 @@ impl DrawableTreeNode {
         // Top connection
         if origin != &Point2D::<usize>::zero() {
             buffer[origin.y][origin.x + self.center_x] =
-            style.top_connection.unwrap_or(style.up_and_horizontal);
+                style.top_connection.unwrap_or(style.up_and_horizontal);
         }
 
         self.render_children(buffer, origin, style);
@@ -263,11 +256,7 @@ impl DrawableTreeNode {
 
             for child_id in 0..self.children.len() {
                 let child = &self.children[child_id];
-                child.render_internal(
-                    buffer,
-                    &child_origin,
-                    style,
-                );
+                child.render_internal(buffer, &child_origin, style);
 
                 if child_id != self.children.len() - 1 {
                     let start = child_origin.x + child.center_x + 1;
@@ -601,7 +590,19 @@ mod style_tests {
 
     #[rstest]
     fn test_style_with_top_connection(drawable: DrawableTreeNode) {
-        let result = drawable.render(&BoxDrawings::THIN, Some('▼'), None);
+        let result = drawable.render(&BoxDrawings {
+            up_and_left: '┌',
+            up_and_right: '┐',
+            down_and_left: '└',
+            down_and_right: '┘',
+            vertical: '│',
+            horizontal: '─',
+            vertical_and_horizontal: '┼',
+            down_and_horizontal: '┬',
+            up_and_horizontal: '┴',
+            top_connection: Some('▼'),
+            bottom_connection: None,
+        });
         let expected = r#"
                ┌──────┐
                │ root │

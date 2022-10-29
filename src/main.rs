@@ -47,7 +47,6 @@ pub struct HorizontalArgs {
 impl HorizontalArgs {
     fn run(&self) {
         let root_nodes = parse(&self.input);
-        println!(".");
         horizontal::print_nodes_std(&root_nodes)
     }
 }
@@ -67,9 +66,7 @@ impl VerticalArgs {
         let root_nodes = parse(&self.input);
         for root in root_nodes {
             let drawable_root = DrawableTreeNode::new(&root);
-            let result = drawable_root.render(
-                &BoxDrawings::new(self.style),
-            );
+            let result = drawable_root.render(&BoxDrawings::new(self.style));
             println!("{}", result);
         }
     }
