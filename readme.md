@@ -67,7 +67,18 @@ astree horizontal -i "$(cat << 'EOF'
 ## Child 1
 ### Grandchild 1
 ### Grandchild 2
+EOF
 )"
+```
+
+Output:
+
+```
+.
+└─ Root
+   └─ Child 1
+      ├─ Grandchild 1
+      └─ Grandchild 2
 ```
 
 ### Horizontal Tree

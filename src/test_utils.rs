@@ -85,7 +85,6 @@ fn pad_to_width(rows: &Vec<&str>, idx: usize, width: usize) -> String {
     format!("{: <width$}", output, width = width)
     //         |
     //         using ' ' for padding
-
 }
 
 #[cfg(test)]

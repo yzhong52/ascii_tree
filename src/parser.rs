@@ -4,9 +4,14 @@ use crate::tree::tree_node::TreeNode;
 use itertools::Itertools;
 use std::fs;
 
-pub fn parse(filename: &String) -> Vec<TreeNode> {
-    let content: String = fs::read_to_string(filename.clone())
-        .expect(format!("Fail to read input file {}", filename).as_str());
+pub fn parse(filename_or_content: &String) -> Vec<TreeNode> {
+    let content: String = match fs::read_to_string(filename_or_content.clone()) {
+        Ok(file_content) => file_content,
+        Err(_) => {
+            // Cannot read as file, treat this as content instead
+            filename_or_content.clone()
+        }
+    };
 
     parse_markdown(content)
 }
