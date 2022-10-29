@@ -1,6 +1,6 @@
 // Example output:
 // ```
-// Ccomparison:
+// Comparison:
 //     0: ├─ Root 1 | ├─ Root 1
 //     1: └─ Root 2 | │  ├─ Child 1 👈👈👈 differ from row: 1
 //     2:           | │  └─ Child 2
