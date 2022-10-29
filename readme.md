@@ -4,6 +4,7 @@ A command line tool for drawing tree structures with ascii characters.
 
 - [Ascii Tree](#ascii-tree)
   - [Usage](#usage)
+    - [Input From File](#input-from-file)
     - [Horizontal Tree](#horizontal-tree)
     - [Vertical Tree](#vertical-tree)
       - [Virtual Tree Styles](#virtual-tree-styles)
@@ -28,7 +29,7 @@ Check out the help message:
 ```
 $ astree --help
 
-astree 0.2.2
+astree 0.2.3
  A command line tool for drawing tree structures with ascii characters
 
 USAGE:
@@ -44,22 +45,7 @@ SUBCOMMANDS:
     vertical      Print the tree virtually
 ```
 
-Create an input file following the markdown syntax, such as:
-
-```
-# Root
-## Child 1
-### Grandchild 1
-### Grandchild 2
-```
-
-Here, an extra `#` indicates a nested child. And saved that in a file, such as `tree.md`.
-
-Render the tree like so:
-
-```
-astree horizontal -i tree.md
-```
+For example, we can use it like this:
 
 ```
 astree horizontal -i "$(cat << 'EOF'
@@ -69,6 +55,35 @@ astree horizontal -i "$(cat << 'EOF'
 ### Grandchild 2
 EOF
 )"
+```
+
+Here, each additional `#` indicates a nested child. 
+
+Output:
+
+```
+.
+└─ Root
+   └─ Child 1
+      ├─ Grandchild 1
+      └─ Grandchild 2
+```
+
+### Input From File
+
+Alternatively, we can also save the markdown file, such as `tree.md`.
+
+```
+# Root
+## Child 1
+### Grandchild 1
+### Grandchild 2
+```
+
+And invoke the command like so:
+
+```
+astree horizontal -i tree.md
 ```
 
 Output:
