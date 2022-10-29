@@ -5,6 +5,7 @@ pub enum Style {
     Double,
     Chest,
     Balloon,
+    Balloon2,
 }
 
 pub struct BoxDrawings {
@@ -17,6 +18,9 @@ pub struct BoxDrawings {
     pub vertical_and_horizontal: char,
     pub down_and_horizontal: char,
     pub up_and_horizontal: char,
+
+    pub top_connection: Option<char>,
+    pub bottom_connection: Option<char>,
 }
 
 impl BoxDrawings {
@@ -27,6 +31,7 @@ impl BoxDrawings {
             Style::Double => BoxDrawings::DOUBLE,
             Style::Chest => BoxDrawings::CHEST,
             Style::Balloon => BoxDrawings::BALLOON,
+            Style::Balloon2 => BoxDrawings::BALLOON2,
         }
     }
 
@@ -40,6 +45,8 @@ impl BoxDrawings {
         vertical_and_horizontal: '┼',
         down_and_horizontal: '┬',
         up_and_horizontal: '┴',
+        top_connection: None,
+        bottom_connection: None,
     };
 
     pub const THICK: BoxDrawings = BoxDrawings {
@@ -52,6 +59,8 @@ impl BoxDrawings {
         vertical_and_horizontal: '╋',
         down_and_horizontal: '┳',
         up_and_horizontal: '┻',
+        top_connection: None,
+        bottom_connection: None,
     };
 
     pub const DOUBLE: BoxDrawings = BoxDrawings {
@@ -64,6 +73,8 @@ impl BoxDrawings {
         vertical_and_horizontal: '╬',
         down_and_horizontal: '╦',
         up_and_horizontal: '╩',
+        top_connection: None,
+        bottom_connection: None,
     };
 
     pub const CHEST: BoxDrawings = BoxDrawings {
@@ -76,6 +87,8 @@ impl BoxDrawings {
         vertical_and_horizontal: '╋',
         down_and_horizontal: '┳',
         up_and_horizontal: '┻',
+        top_connection: None,
+        bottom_connection: None,
     };
 
     pub const BALLOON: BoxDrawings = BoxDrawings {
@@ -88,5 +101,29 @@ impl BoxDrawings {
         vertical_and_horizontal: '┼',
         down_and_horizontal: '┬',
         up_and_horizontal: '┴',
+        top_connection: None,
+        bottom_connection: None,
+    };
+
+    //    ╭───────────╮
+    //    │ Root Node │
+    //    ╰─────¤─────╯
+    //     ╭────┴─────╮
+    // ╭───¤───╮  ╭───¤───╮
+    // │ Child │  │ Child │
+    // │  (1)  │  │  (2)  │
+    // ╰───────╯  ╰───────╯
+    pub const BALLOON2: BoxDrawings = BoxDrawings {
+        up_and_left: '╭',
+        up_and_right: '╮',
+        down_and_left: '╰',
+        down_and_right: '╯',
+        vertical: '│',
+        horizontal: '─',
+        vertical_and_horizontal: '┼',
+        down_and_horizontal: '┬',
+        up_and_horizontal: '┴',
+        top_connection: Some('¤'),
+        bottom_connection: Some('¤'),
     };
 }

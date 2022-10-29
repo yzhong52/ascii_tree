@@ -6,7 +6,7 @@ A command line tool for drawing tree structures with ascii characters.
   - [Usage](#usage)
     - [Horizontal Tree](#horizontal-tree)
     - [Vertical Tree](#vertical-tree)
-      - [Other Virtual Tree Styles](#other-virtual-tree-styles)
+      - [Virtual Tree Styles](#virtual-tree-styles)
   - [Development](#development)
     - [Install Rust](#install-rust)
     - [Build & Run](#build--run)
@@ -61,6 +61,15 @@ Render the tree like so:
 astree horizontal -i tree.md
 ```
 
+```
+astree horizontal -i "$(cat << 'EOF'
+# Root
+## Child 1
+### Grandchild 1
+### Grandchild 2
+)"
+```
+
 ### Horizontal Tree
 
 With an input file `examples/with_grandchildren_0.md`, we can render the tree like this:
@@ -95,7 +104,7 @@ astree vertical --input examples/with_grandchildren_1.md
 └──────────────┘  └──────────────┘
 ```
 
-#### Other Virtual Tree Styles
+#### Virtual Tree Styles
 
 With thick lines:
 
@@ -151,11 +160,11 @@ astree vertical --input examples/with_grandchildren_2.md --style chest
 With balloon style:
 
 ```
-astree vertical --input examples/with_children_2.md --style balloon --top-connection ¤ --bottom-connection ¤ 
-   ╭───────────╮    
-   │ Root Node │    
-   ╰─────¤─────╯    
-    ╭────┴─────╮    
+astree vertical --input examples/with_children_2.md --style balloon2
+   ╭───────────╮
+   │ Root Node │
+   ╰─────¤─────╯
+    ╭────┴─────╮
 ╭───¤───╮  ╭───¤───╮
 │ Child │  │ Child │
 │  (1)  │  │  (2)  │
@@ -248,7 +257,7 @@ Step 2: publish.
 cargo publish --token <TOEKN>
 ```
 
-or 
+or
 
 ```
 cargo login

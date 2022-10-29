@@ -10,16 +10,12 @@ use clap::{Parser, Subcommand};
 use tree::horizontal;
 
 mod parser;
-mod tree;
 mod test_utils;
+mod tree;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
 struct Args {
-    /// The input filename or content
-    #[clap()]
-    input: String,
-
     #[clap(subcommand)]
     command: Command,
 }
@@ -27,8 +23,8 @@ struct Args {
 impl Args {
     fn run(self) {
         match self.command {
-            Command::Vertical(vertical_args) => vertical_args.run(self.input),
-            Command::Horizontal(horizontal_args) => horizontal_args.run(self.input),
+            Command::Vertical(vertical_args) => vertical_args.run(),
+            Command::Horizontal(horizontal_args) => horizontal_args.run(),
         }
     }
 }
@@ -43,11 +39,14 @@ pub enum Command {
 
 #[derive(Parser, Debug)]
 pub struct HorizontalArgs {
+    /// The input filename or content
+    #[clap(short, long)]
+    input: String,
 }
 
 impl HorizontalArgs {
-    fn run(&self, input: String) {
-        let root_nodes = parse(&input);
+    fn run(&self) {
+        let root_nodes = parse(&self.input);
         println!(".");
         horizontal::print_nodes_std(&root_nodes)
     }
@@ -58,22 +57,18 @@ pub struct VerticalArgs {
     #[clap(short, long, arg_enum, default_value = "thin")]
     style: Style,
 
+    /// The input filename or content
     #[clap(short, long)]
-    top_connection: Option<char>,
-
-    #[clap(short, long)]
-    bottom_connection: Option<char>,
+    input: String,
 }
 
 impl VerticalArgs {
-    fn run(self, input: String) {
-        let root_nodes = parse(&input);
+    fn run(self) {
+        let root_nodes = parse(&self.input);
         for root in root_nodes {
             let drawable_root = DrawableTreeNode::new(&root);
             let result = drawable_root.render(
                 &BoxDrawings::new(self.style),
-                self.top_connection,
-                self.bottom_connection,
             );
             println!("{}", result);
         }
