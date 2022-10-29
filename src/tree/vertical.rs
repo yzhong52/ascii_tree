@@ -141,21 +141,10 @@ impl DrawableTreeNode {
             + (drawable_children.len() - 1) * HORIZONTAL_CHILDREN_BUFFER
     }
 
-    pub fn render(
-        &self,
-        style: &BoxDrawings,
-        top_connection: Option<char>,
-        bottom_connection: Option<char>,
-    ) -> String {
+    pub fn render(&self, style: &BoxDrawings) -> String {
         let mut canvas: Vec<Vec<char>> = vec![vec![' '; self.overall_width]; self.overall_height];
 
-        self.render_internal(
-            &mut canvas,
-            &Point2D { x: 0, y: 0 },
-            &style,
-            top_connection,
-            bottom_connection,
-        );
+        self.render_internal(&mut canvas, &Point2D { x: 0, y: 0 }, &style);
 
         canvas
             .iter()
@@ -169,8 +158,6 @@ impl DrawableTreeNode {
         buffer: &mut Vec<Vec<char>>,
         origin: &Point2D<usize>,
         style: &BoxDrawings,
-        top_connection: Option<char>,
-        bottom_connection: Option<char>,
     ) {
         let left = origin.x + self.center_x - (self.width - 1) / 2;
         let right = left + self.width;
@@ -216,10 +203,10 @@ impl DrawableTreeNode {
         // Top connection
         if origin != &Point2D::<usize>::zero() {
             buffer[origin.y][origin.x + self.center_x] =
-                top_connection.unwrap_or(style.up_and_horizontal);
+                style.top_connection.unwrap_or(style.up_and_horizontal);
         }
 
-        self.render_children(buffer, origin, style, top_connection, bottom_connection);
+        self.render_children(buffer, origin, style);
     }
 
     fn render_children(
@@ -227,14 +214,12 @@ impl DrawableTreeNode {
         buffer: &mut Vec<Vec<char>>,
         origin: &Point2D<usize>,
         style: &BoxDrawings,
-        top_connection: Option<char>,
-        bottom_connection: Option<char>,
     ) {
         // Draw children
         if self.children.len() != 0 {
             // Bottom connection
             buffer[origin.y + self.height - 1][origin.x + self.center_x] =
-                bottom_connection.unwrap_or(style.down_and_horizontal);
+                style.bottom_connection.unwrap_or(style.down_and_horizontal);
 
             let child_origin_y = if self.children.len() > 1 {
                 // More than 1 direct children, vertical buffer needed.
@@ -271,13 +256,7 @@ impl DrawableTreeNode {
 
             for child_id in 0..self.children.len() {
                 let child = &self.children[child_id];
-                child.render_internal(
-                    buffer,
-                    &child_origin,
-                    style,
-                    top_connection,
-                    bottom_connection,
-                );
+                child.render_internal(buffer, &child_origin, style);
 
                 if child_id != self.children.len() - 1 {
                     let start = child_origin.x + child.center_x + 1;
@@ -355,7 +334,7 @@ mod layout_tests {
     fn test_root() {
         let root = TreeNode::from_label("root");
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
         let expected = r#"
         ┌──────┐
         │ root │
@@ -369,7 +348,7 @@ mod layout_tests {
         let root = TreeNode::new("root", vec![child1]);
 
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
          ┌──────┐
@@ -388,7 +367,7 @@ mod layout_tests {
         let root = TreeNode::new("root", vec![child1, child2]);
 
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
                ┌──────┐
@@ -409,7 +388,7 @@ mod layout_tests {
         let root = TreeNode::new("root", vec![child1, child2, child3]);
 
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
                      ┌──────┐
@@ -434,7 +413,7 @@ mod layout_tests {
         let root = TreeNode::new("root", vec![child1, child2]);
 
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
                                  ┌──────┐
@@ -455,7 +434,7 @@ mod layout_tests {
     fn test_multi_line_label() {
         let root = TreeNode::from_label("Root\\nNode");
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
         let expected = r#"
         ┌──────┐
         │ Root │
@@ -476,7 +455,7 @@ mod layout_tests {
         let root = TreeNode::new("root\\nnode", vec![child1, child2]);
 
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
                                  ┌──────┐
@@ -502,7 +481,7 @@ mod layout_tests {
         let root = TreeNode::new("a long root node", vec![child1]);
 
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
         ┌──────────────────┐
@@ -517,7 +496,7 @@ mod layout_tests {
         let root = TreeNode::new("a long root node", children);
 
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
         ┌──────────────────┐
@@ -537,7 +516,7 @@ mod layout_tests {
         let root = TreeNode::new("a long root node", children);
 
         let drawable_root = DrawableTreeNode::new(&root);
-        let result = drawable_root.render(&BoxDrawings::THIN, None, None);
+        let result = drawable_root.render(&BoxDrawings::THIN);
 
         let expected = r#"
         ┌──────────────────┐
@@ -569,7 +548,7 @@ mod style_tests {
 
     #[rstest]
     fn test_style_thin(drawable: DrawableTreeNode) {
-        let result = drawable.render(&BoxDrawings::THIN, None, None);
+        let result = drawable.render(&BoxDrawings::THIN);
         let expected = r#"
                ┌──────┐
                │ root │
@@ -583,7 +562,7 @@ mod style_tests {
 
     #[rstest]
     fn test_style_thick(drawable: DrawableTreeNode) {
-        let result = drawable.render(&BoxDrawings::THICK, None, None);
+        let result = drawable.render(&BoxDrawings::THICK);
         let expected = r#"
                ┏━━━━━━┓
                ┃ root ┃
@@ -597,7 +576,7 @@ mod style_tests {
 
     #[rstest]
     fn test_style_double(drawable: DrawableTreeNode) {
-        let result = drawable.render(&BoxDrawings::DOUBLE, None, None);
+        let result = drawable.render(&BoxDrawings::DOUBLE);
         let expected = r#"
                ╔══════╗
                ║ root ║
@@ -611,7 +590,19 @@ mod style_tests {
 
     #[rstest]
     fn test_style_with_top_connection(drawable: DrawableTreeNode) {
-        let result = drawable.render(&BoxDrawings::THIN, Some('▼'), None);
+        let result = drawable.render(&BoxDrawings {
+            up_and_left: '┌',
+            up_and_right: '┐',
+            down_and_left: '└',
+            down_and_right: '┘',
+            vertical: '│',
+            horizontal: '─',
+            vertical_and_horizontal: '┼',
+            down_and_horizontal: '┬',
+            up_and_horizontal: '┴',
+            top_connection: Some('▼'),
+            bottom_connection: None,
+        });
         let expected = r#"
                ┌──────┐
                │ root │

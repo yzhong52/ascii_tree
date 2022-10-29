@@ -10,8 +10,8 @@ use clap::{Parser, Subcommand};
 use tree::horizontal;
 
 mod parser;
-mod tree;
 mod test_utils;
+mod tree;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
@@ -39,33 +39,26 @@ pub enum Command {
 
 #[derive(Parser, Debug)]
 pub struct HorizontalArgs {
-    /// The input filename
-    #[clap(short, long, value_parser)]
+    /// The input filename or content
+    #[clap(short, long)]
     input: String,
 }
 
 impl HorizontalArgs {
     fn run(&self) {
         let root_nodes = parse(&self.input);
-        println!(".");
         horizontal::print_nodes_std(&root_nodes)
     }
 }
 
 #[derive(Parser, Debug)]
 pub struct VerticalArgs {
-    /// The input filename
-    #[clap(short, long, value_parser)]
-    input: String,
-
     #[clap(short, long, arg_enum, default_value = "thin")]
     style: Style,
 
+    /// The input filename or content
     #[clap(short, long)]
-    top_connection: Option<char>,
-
-    #[clap(short, long)]
-    bottom_connection: Option<char>,
+    input: String,
 }
 
 impl VerticalArgs {
@@ -73,11 +66,7 @@ impl VerticalArgs {
         let root_nodes = parse(&self.input);
         for root in root_nodes {
             let drawable_root = DrawableTreeNode::new(&root);
-            let result = drawable_root.render(
-                &BoxDrawings::new(self.style),
-                self.top_connection,
-                self.bottom_connection,
-            );
+            let result = drawable_root.render(&BoxDrawings::new(self.style));
             println!("{}", result);
         }
     }
