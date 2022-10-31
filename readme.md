@@ -27,22 +27,19 @@ cargo install astree
 Check out the help message:
 
 ```
-$ astree --help
+$ astree -h    
+A command line tool for drawing tree structures with ascii characters
 
-astree 0.2.3
- A command line tool for drawing tree structures with ascii characters
+Usage: astree <COMMAND>
 
-USAGE:
-    astree <SUBCOMMAND>
+Commands:
+  vertical    Print the tree virtually
+  horizontal  Print the tree horizontally
+  help        Print this message or the help of the given subcommand(s)
 
-OPTIONS:
-    -h, --help       Print help information
-    -V, --version    Print version information
-
-SUBCOMMANDS:
-    help          Print this message or the help of the given subcommand(s)
-    horizontal    Print the tree horizontally
-    vertical      Print the tree virtually
+Options:
+  -h, --help     Print help information (use `--help` for more detail)
+  -V, --version  Print version information
 ```
 
 For example, we can use it like this:
