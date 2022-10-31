@@ -13,8 +13,23 @@ mod parser;
 mod test_utils;
 mod tree;
 
+const LONG_ABOUT: &str = r#"
+A command line tool for drawing tree structures with ascii characters.
+
+Example:
+
+astree horizontal -i "$(cat << 'EOF'
+# Root
+## Child 1
+### Grandchild 1
+### Grandchild 2
+EOF
+)"
+
+"#;
+
 #[derive(Parser, Debug)]
-#[clap(author, version, about)]
+#[command(author, version, about, long_about = LONG_ABOUT)]
 struct Args {
     #[clap(subcommand)]
     command: Command,
@@ -53,7 +68,7 @@ impl HorizontalArgs {
 
 #[derive(Parser, Debug)]
 pub struct VerticalArgs {
-    #[clap(short, long, arg_enum, default_value = "thin")]
+    #[clap(short, long, value_enum, default_value = "thin")]
     style: Style,
 
     /// The input filename or content
