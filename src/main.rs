@@ -81,16 +81,16 @@ pub struct VerticalArgs {
     width: Option<usize>,
 
     /// The horizontal spacing between boxes
-    #[clap(long)]
-    spacing: Option<usize>,
+    #[clap(long, default_value_t = 2)]
+    spacing: usize,
 }
 
 impl VerticalArgs {
     fn run(self) {
         let root_nodes = parse(&self.input, self.width);
         for root in root_nodes {
-            let drawable_root = DrawableTreeNode::new(&root);
-            let result = drawable_root.render(&BoxDrawings::new(self.style));
+            let drawable_root = DrawableTreeNode::new(&root, self.spacing);
+            let result = drawable_root.render(&BoxDrawings::new(self.style), self.spacing);
             println!("{}", result);
         }
     }

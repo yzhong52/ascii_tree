@@ -256,6 +256,18 @@ astree vertical --input examples/with_many_children.md --width 10 --spacing 0
 │ child  ││  long   ││  child  ││  child   │
 └────────┘│  child  │└─────────┘└──────────┘
           └─────────┘                       
+
+astree vertical --input examples/with_many_children.md --width 10 --spacing 10
+         ┌──────────┐          
+         │ A Simple │          
+         │   Root   │          
+         └────┬─────┘          
+    ┌─────────┴──────────┐     
+┌───┴────┐          ┌────┴────┐
+│ A long │          │ Another │
+│ child  │          │  long   │
+└────────┘          │  child  │
+                    └─────────┘
 ```
 
 ## Development
