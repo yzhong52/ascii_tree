@@ -336,10 +336,12 @@ impl DrawableTreeNode {
 }
 
 #[cfg(test)]
+static HORIZONTAL_CHILDREN_SPACING: usize = 2;
+
+#[cfg(test)]
 mod layout_tests {
     use super::*;
     use crate::test_utils::assert_canonical_eq;
-    static HORIZONTAL_CHILDREN_SPACING: usize = 2;
 
     #[test]
     fn test_root() {
@@ -527,7 +529,7 @@ mod layout_tests {
         let root = TreeNode::new("a long root node", children);
 
         let drawable_root = DrawableTreeNode::new(&root, HORIZONTAL_CHILDREN_SPACING);
-        let result = drawable_root.render(&BoxDrawings::THIN);
+        let result = drawable_root.render(&BoxDrawings::THIN, HORIZONTAL_CHILDREN_SPACING);
 
         let expected = r#"
         ┌──────────────────┐
@@ -559,7 +561,7 @@ mod style_tests {
 
     #[rstest]
     fn test_style_thin(drawable: DrawableTreeNode) {
-        let result = drawable.render(&BoxDrawings::THIN);
+        let result = drawable.render(&BoxDrawings::THIN, HORIZONTAL_CHILDREN_SPACING);
         let expected = r#"
                ┌──────┐
                │ root │
@@ -573,7 +575,7 @@ mod style_tests {
 
     #[rstest]
     fn test_style_thick(drawable: DrawableTreeNode) {
-        let result = drawable.render(&BoxDrawings::THICK);
+        let result = drawable.render(&BoxDrawings::THICK, HORIZONTAL_CHILDREN_SPACING);
         let expected = r#"
                ┏━━━━━━┓
                ┃ root ┃
@@ -587,7 +589,7 @@ mod style_tests {
 
     #[rstest]
     fn test_style_double(drawable: DrawableTreeNode) {
-        let result = drawable.render(&BoxDrawings::DOUBLE);
+        let result = drawable.render(&BoxDrawings::DOUBLE, HORIZONTAL_CHILDREN_SPACING);
         let expected = r#"
                ╔══════╗
                ║ root ║
