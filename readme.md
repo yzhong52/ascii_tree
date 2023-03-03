@@ -8,6 +8,7 @@ A command line tool for drawing tree structures with ascii characters.
     - [Horizontal Tree](#horizontal-tree)
     - [Vertical Tree](#vertical-tree)
       - [Virtual Tree Styles](#virtual-tree-styles)
+      - [Virtual Tree Maximum Label Width](#virtual-tree-maximum-label-width)
   - [Development](#development)
 
 ## Usage
@@ -218,6 +219,24 @@ astree vertical --input examples/with_children_2.md --style balloon2
 │ Child │  │ Child │
 │  (1)  │  │  (2)  │
 ╰───────╯  ╰───────╯
+```
+
+#### Virtual Tree Maximum Label Width
+
+To specify the maximum width of the label with `--width <WIDTH>`. For example:
+
+```
+astree vertical --input examples/with_long_label.md --width 10
+     ┌──────────┐      
+     │ A Simple │      
+     │   Root   │      
+     └────┬─────┘      
+    ┌─────┴──────┐     
+┌───┴────┐  ┌────┴────┐
+│ A long │  │ Another │
+│ child  │  │  long   │
+└────────┘  │  child  │
+            └─────────┘
 ```
 
 ## Development
