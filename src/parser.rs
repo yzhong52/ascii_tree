@@ -224,7 +224,7 @@ mod tests {
 
     #[test]
     fn test_wrap_line() {
-        assert_eq!(wrap_line("boxes and lines", Some(10)), "boxes and\nline");
+        assert_eq!(wrap_line("boxes and lines", Some(10)), "boxes and\nlines");
     }
 
     #[test]
