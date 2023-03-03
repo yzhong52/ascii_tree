@@ -9,6 +9,7 @@ A command line tool for drawing tree structures with ascii characters.
     - [Vertical Tree](#vertical-tree)
       - [Virtual Tree Styles](#virtual-tree-styles)
       - [Virtual Tree Maximum Label Width](#virtual-tree-maximum-label-width)
+      - [Virtual Tree Horizontal Spacing](#virtual-tree-horizontal-spacing)
   - [Development](#development)
 
 ## Usage
@@ -237,6 +238,36 @@ astree vertical --input examples/with_long_label.md --width 10
 │ child  │  │  long   │
 └────────┘  │  child  │
             └─────────┘
+```
+
+#### Virtual Tree Horizontal Spacing
+
+By default, there is a two-spaces gap between boxes. This can be set with `--spacing <SPACING>`.
+
+```
+astree vertical --input examples/with_many_children.md --width 10 --spacing 0
+               ┌──────────┐                 
+               │ A Simple │                 
+               │   Root   │                 
+               └────┬─────┘                 
+    ┌──────────┬────┴─────┬──────────┐      
+┌───┴────┐┌────┴────┐┌────┴────┐┌────┴─────┐
+│ A long ││ Another ││ A third ││ One more │
+│ child  ││  long   ││  child  ││  child   │
+└────────┘│  child  │└─────────┘└──────────┘
+          └─────────┘                       
+
+astree vertical --input examples/with_many_children.md --width 10 --spacing 10
+         ┌──────────┐          
+         │ A Simple │          
+         │   Root   │          
+         └────┬─────┘          
+    ┌─────────┴──────────┐     
+┌───┴────┐          ┌────┴────┐
+│ A long │          │ Another │
+│ child  │          │  long   │
+└────────┘          │  child  │
+                    └─────────┘
 ```
 
 ## Development

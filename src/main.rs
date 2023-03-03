@@ -5,7 +5,7 @@ use crate::parser::parse;
 
 use crate::tree::style::BoxDrawings;
 use crate::tree::style::Style;
-use crate::tree::vertical::DrawableTreeNode;
+use crate::tree::vertical::render;
 use clap::{Parser, Subcommand};
 use tree::horizontal;
 
@@ -79,14 +79,17 @@ pub struct VerticalArgs {
     /// The maximum width of each box
     #[clap(short, long)]
     width: Option<usize>,
+
+    /// The horizontal spacing between boxes
+    #[clap(long, default_value_t = 2)]
+    spacing: usize,
 }
 
 impl VerticalArgs {
     fn run(self) {
         let root_nodes = parse(&self.input, self.width);
         for root in root_nodes {
-            let drawable_root = DrawableTreeNode::new(&root);
-            let result = drawable_root.render(&BoxDrawings::new(self.style));
+            let result = render(&root, &BoxDrawings::new(self.style), self.spacing);
             println!("{}", result);
         }
     }
