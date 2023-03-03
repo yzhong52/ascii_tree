@@ -61,7 +61,8 @@ pub struct HorizontalArgs {
 
 impl HorizontalArgs {
     fn run(&self) {
-        let root_nodes = parse(&self.input);
+        // Don't support automatically adding line breaks for horizontal tree
+        let root_nodes = parse(&self.input, None);
         horizontal::print_nodes_std(&root_nodes)
     }
 }
@@ -74,11 +75,15 @@ pub struct VerticalArgs {
     /// The input filename or content
     #[clap(short, long)]
     input: String,
+
+    /// The maximum width of each box
+    #[clap(short, long)]
+    width: Option<usize>,
 }
 
 impl VerticalArgs {
     fn run(self) {
-        let root_nodes = parse(&self.input);
+        let root_nodes = parse(&self.input, self.width);
         for root in root_nodes {
             let drawable_root = DrawableTreeNode::new(&root);
             let result = drawable_root.render(&BoxDrawings::new(self.style));
