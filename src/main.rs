@@ -79,6 +79,10 @@ pub struct VerticalArgs {
     /// The maximum width of each box
     #[clap(short, long)]
     width: Option<usize>,
+
+    /// The horizontal spacing between boxes
+    #[clap(long)]
+    spacing: Option<usize>,
 }
 
 impl VerticalArgs {

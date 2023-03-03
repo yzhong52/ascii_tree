@@ -5,7 +5,7 @@ use crate::tree::style::BoxDrawings;
 use crate::tree::tree_node::TreeNode;
 use std::cmp::max;
 
-static HORIZONTAL_CHILDREN_BUFFER: usize = 2;
+static HORIZONTAL_CHILDREN_BUFFER: usize = 0;
 static VERTICAL_LAYER_BUFFER: usize = 1;
 
 #[derive(Debug, Eq, PartialEq)]
