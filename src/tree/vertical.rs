@@ -5,6 +5,11 @@ use crate::tree::style::BoxDrawings;
 use crate::tree::tree_node::TreeNode;
 use std::cmp::max;
 
+pub fn render(tree_node: &TreeNode, style: &BoxDrawings, horizontal_spacing: usize) -> String {
+    let drawble = DrawableTreeNode::new(&tree_node, horizontal_spacing);
+    drawble.render(style, horizontal_spacing)
+}
+
 static VERTICAL_LAYER_BUFFER: usize = 1;
 
 #[derive(Debug, Eq, PartialEq)]

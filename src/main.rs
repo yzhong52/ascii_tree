@@ -5,7 +5,7 @@ use crate::parser::parse;
 
 use crate::tree::style::BoxDrawings;
 use crate::tree::style::Style;
-use crate::tree::vertical::DrawableTreeNode;
+use crate::tree::vertical::render;
 use clap::{Parser, Subcommand};
 use tree::horizontal;
 
@@ -89,8 +89,7 @@ impl VerticalArgs {
     fn run(self) {
         let root_nodes = parse(&self.input, self.width);
         for root in root_nodes {
-            let drawable_root = DrawableTreeNode::new(&root, self.spacing);
-            let result = drawable_root.render(&BoxDrawings::new(self.style), self.spacing);
+            let result = render(&root, &BoxDrawings::new(self.style), self.spacing);
             println!("{}", result);
         }
     }
