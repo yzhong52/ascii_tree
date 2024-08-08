@@ -38,24 +38,20 @@ struct Args {
 impl Args {
     fn run(self) {
         match self.command {
-            Command::Vertical(vertical_args) | Command::V(vertical_args) => vertical_args.run(),
-            Command::Horizontal(horizontal_args) | Command::H(horizontal_args) => {
-                horizontal_args.run()
-            }
+            Command::Vertical(vertical_args) => vertical_args.run(),
+            Command::Horizontal(horizontal_args) => horizontal_args.run(),
         }
     }
 }
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// Print the tree virtually
+    /// Print the tree virtually. Use 'v' for shorthand.
+    #[clap(alias = "v")]
     Vertical(VerticalArgs),
-    // Print the tree virtually (alias for vertical subcommand)
-    V(VerticalArgs),
-    /// Print the tree horizontally
+    /// Print the tree horizontally. Use 'h' for shorthand.
+    #[clap(alias = "h")]
     Horizontal(HorizontalArgs),
-    // Print the tree horizontally (alias for horizontal subcommand)
-    H(HorizontalArgs),
 }
 
 #[derive(Parser, Debug)]
