@@ -72,11 +72,11 @@ struct NodeLayer {
 }
 
 fn parse_markdown(content: String, width: Option<usize>) -> Vec<TreeNode> {
+    // Split the content by line, and remove empty lines
     let lines: Vec<&str> = content
         .split("\n")
         .map(|x| x.trim())
         .filter(|&x| !x.is_empty())
-        .filter(|&x| x.starts_with("#"))
         .collect();
 
     // Create a dummy root node at depth 0
@@ -88,22 +88,35 @@ fn parse_markdown(content: String, width: Option<usize>) -> Vec<TreeNode> {
     let mut stack: Vec<NodeLayer> = vec![root_layer];
 
     for line in &lines {
-        let (depth, label) = parse_line(line, width);
+        if line.starts_with("#") {
+            let (depth, label) = parse_line(line, width);
+            while depth < stack.last().unwrap().depth {
+                // Finish parsing one layer of nodes
+                let top_layer = stack.pop().unwrap();
+                stack.last_mut().unwrap().nodes.last_mut().unwrap().children = top_layer.nodes;
+            }
 
-        while depth < stack.last().unwrap().depth {
-            let top_layer = stack.pop().unwrap();
-            stack.last_mut().unwrap().nodes.last_mut().unwrap().children = top_layer.nodes;
-        }
-
-        let node = TreeNode::from_label(&label);
-        if depth > stack.last().unwrap().depth {
-            stack.push(NodeLayer {
-                depth: depth,
-                nodes: vec![node],
-            });
+            let node = TreeNode::from_label(&label);
+            if depth > stack.last().unwrap().depth {
+                stack.push(NodeLayer {
+                    depth: depth,
+                    nodes: vec![node],
+                });
+            } else {
+                assert_eq!(depth, stack.last().unwrap().depth);
+                stack.last_mut().unwrap().nodes.push(node);
+            }
         } else {
-            assert_eq!(depth, stack.last().unwrap().depth);
-            stack.last_mut().unwrap().nodes.push(node);
+            // if this line is not a title line, then append it to the last node's
+            // label with a line break.
+            stack
+                .last_mut()
+                .unwrap()
+                .nodes
+                .last_mut()
+                .unwrap()
+                .label
+                .push_str(&("\\n".to_string() + line));
         }
     }
 
@@ -145,8 +158,10 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_markdown_ignore_none_title_lines() {
-        // Both empty lines and none-title lines are ignored
+    fn test_parse_include_non_title_line() {
+        // In other examples, we only parse the title lines of the markdown format.
+        // Here, we parse the content as well and automatically include line breaks.
+        // This, we believe is slight more usessssr friendly than having to type '\n'.
         let nodes = parse_markdown(
             r#"
             #Root
@@ -157,8 +172,7 @@ mod tests {
         );
 
         assert_eq!(nodes.len(), 1);
-        assert_eq!(nodes[0].label, "Root");
-        assert_eq!(nodes[0].children.len(), 0);
+        assert_eq!(nodes[0].label, "Root\\nhello world");
     }
 
     #[test]

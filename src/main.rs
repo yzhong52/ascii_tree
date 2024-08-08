@@ -46,9 +46,11 @@ impl Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// Print the tree virtually
+    /// Print the tree virtually. Use 'v' for shorthand.
+    #[clap(alias = "v")]
     Vertical(VerticalArgs),
-    /// Print the tree horizontally
+    /// Print the tree horizontally. Use 'h' for shorthand.
+    #[clap(alias = "h")]
     Horizontal(HorizontalArgs),
 }
 
