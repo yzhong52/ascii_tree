@@ -36,18 +36,23 @@ where
 pub struct DrawableTreeNode {
     // Horizontal center of the current node
     center_x: usize,
+
     // Size of the node
     width: usize,
     height: usize,
+
     // Size of the node with all its children (if any)
     pub overall_width: usize,
     pub overall_height: usize,
+
     // For multi-line label, vec!["Root", "Node"]
     // ┌──────┐
     // │ Root │
     // │ Node │
     // └──────┘
     labels: Vec<String>,
+
+    // A list of children
     children: Vec<DrawableTreeNode>,
 }
 
@@ -84,7 +89,7 @@ impl DrawableTreeNode {
                 + (node.children.len() - 1) * horizontal_spacing
         };
 
-        let overall_width = max(node_width, children_width);
+        // The height of the current cell and all the children
         let overall_height = if node.children.len() == 0 {
             node_height
         } else {
@@ -95,8 +100,23 @@ impl DrawableTreeNode {
                 .unwrap_or(0);
 
             if node.children.len() == 1 {
+                // With single children, no vertical buffer needed.
+                //     ┌──────┐
+                //     │ Root │
+                //     └──┬───┘
+                //   ┌────┴────┐
+                //   │ Child 1 │
+                //   └─────────┘
                 node_height + children_height
             } else {
+                // More than 1 direct children, vertical buffer needed.
+                //         ┌──────┐
+                //         │ Root │
+                //         └──┬───┘
+                //      ╔═════╩══════╗<- VERTICAL_LAYER_BUFFER
+                // ┌────┴────┐  ┌────┴────┐
+                // │ Child 1 │  │ Child 2 │
+                // └─────────┘  └─────────┘
                 node_height + children_height + VERTICAL_LAYER_BUFFER
             }
         };
@@ -110,16 +130,32 @@ impl DrawableTreeNode {
         // We choose to put the center closer to the left (position 3 above).
         let center_of_current_box = (node_width - 1) / 2;
 
-        let center_x = match (drawable_children.first(), drawable_children.last()) {
+        // The overall center of the current node and all its children
+        let (center_x, overall_width) = match (drawable_children.first(), drawable_children.last())
+        {
             (Some(first), Some(last)) => {
                 // If there are children, let's put the current node to middle of
                 // all the children.
-                max(
-                    center_of_current_box,
-                    (first.center_x + children_width - last.overall_width + last.center_x) / 2,
-                )
+                let connection_bar_width =
+                    children_width - (first.center_x - 1) - (last.overall_width - last.center_x);
+                
+                // When connection_bar_width is even (e.g. 8), we should add 4.
+                // When connection_bar_width is odd (e.g. 7), we should add 3.
+                let center_of_children = first.center_x + connection_bar_width / 2;
+                let overall_center = max(center_of_current_box, center_of_children);
+
+                let current_node_right_bufffer = (node_width + 1) / 2;
+                let last_child_right_buffer = last.overall_width - last.center_x;
+                let connection_bar_right_buffer = (connection_bar_width + 1) / 2;
+                let overall_width = overall_center
+                    + max(
+                        current_node_right_bufffer,
+                        connection_bar_right_buffer + last_child_right_buffer,
+                    );
+
+                (overall_center, overall_width)
             }
-            _ => center_of_current_box,
+            _ => (center_of_current_box, node_width),
         };
 
         DrawableTreeNode {
@@ -544,6 +580,76 @@ mod layout_tests {
         ┌─┴─┐  ┌─┴─┐  ┌─┴─┐
         │ a │  │ b │  │ c │
         └───┘  └───┘  └───┘ "#;
+        assert_canonical_eq(&result, &expected);
+    }
+
+    #[test]
+    fn test_parent_overflow_to_right() {
+        let child_l3a = TreeNode::from_label("L3A");
+        let child_l3b = TreeNode::from_label("L3B");
+        let child_l2a = TreeNode::new("L2A", vec![child_l3a, child_l3b]);
+        let child_l2b = TreeNode::from_label("L2B");
+        let root = TreeNode::new("L1\\nRollup Quantity: 50000", vec![child_l2a, child_l2b]);
+
+        let drawable_root = DrawableTreeNode::new(&root, HORIZONTAL_CHILDREN_SPACING);
+        let result = drawable_root.render(&BoxDrawings::THIN, HORIZONTAL_CHILDREN_SPACING);
+
+        // This is an edge case where we have the parent node 'overflow' to the right.
+        // In the following L1 node, we can not simply calculate the overall width of
+        // L1 node and its children by taking the max of the two.
+        let expected = r#"
+           ┌────────────────────────┐
+           │           L1           │
+           │ Rollup Quantity: 50000 │
+           └───────────┬────────────┘
+                ┌──────┴───────┐     
+             ┌──┴──┐        ┌──┴──┐  
+             │ L2A │        │ L2A │  
+             └──┬──┘        └─────┘  
+           ┌────┴────┐               
+        ┌──┴──┐   ┌──┴──┐            
+        │ L3A │   │ L3B │             
+        └─────┘   └─────┘    "#;
+        assert_canonical_eq(&result, &expected);
+    }
+
+    #[test]
+    fn test_inbalance_children() {
+        let child_l2a = TreeNode::from_label("L2A");
+        let child_l2b = TreeNode::from_label("L2B Long Label");
+        let root = TreeNode::new("L1 A Very Looong Label", vec![child_l2a, child_l2b]);
+
+        let drawable_root = DrawableTreeNode::new(&root, HORIZONTAL_CHILDREN_SPACING);
+        let result = drawable_root.render(&BoxDrawings::THIN, HORIZONTAL_CHILDREN_SPACING);
+
+        let expected = r#"
+   ┌────────────────────────┐
+   │ L1 A Very Looong Label │
+   └───────────┬────────────┘
+         ┌─────┴───────┐                   
+      ┌──┴──┐  ┌───────┴────────┐          
+      │ L2A │  │ L2B Long Label │          
+      └─────┘  └────────────────┘  "#;
+        assert_canonical_eq(&result, &expected);
+    }
+
+    #[test]
+    fn test_inbalance_children_2() {
+        let child_l2a = TreeNode::from_label("L2A Long Label");
+        let child_l2b = TreeNode::from_label("L2B");
+        let root = TreeNode::new("L1 A Very Looong Label", vec![child_l2a, child_l2b]);
+
+        let drawable_root = DrawableTreeNode::new(&root, HORIZONTAL_CHILDREN_SPACING);
+        let result = drawable_root.render(&BoxDrawings::THIN, HORIZONTAL_CHILDREN_SPACING);
+
+        let expected = r#"
+       ┌────────────────────────┐   
+       │ L1 A Very Looong Label │   
+       └───────────┬────────────┘   
+            ┌──────┴───────┐        
+    ┌───────┴────────┐  ┌──┴──┐     
+    │ L2A Long Label │  │ L2B │     
+    └────────────────┘  └─────┘"#;
         assert_canonical_eq(&result, &expected);
     }
 }
