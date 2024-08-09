@@ -7,10 +7,10 @@ A command line tool for drawing tree structures with ascii characters.
     - [Input From File](#input-from-file)
     - [Horizontal Tree](#horizontal-tree)
     - [Vertical Tree](#vertical-tree)
-      - [Virtual Tree Styles](#virtual-tree-styles)
-      - [Virtual Tree Maximum Label Width](#virtual-tree-maximum-label-width)
-      - [Virtual Tree Horizontal Spacing](#virtual-tree-horizontal-spacing)
-      - [Virtual Tree Multi Lines](#virtual-tree-multi-lines)
+      - [Vertical Tree Styles](#vertical-tree-styles)
+      - [Vertical Tree Maximum Label Width](#vertical-tree-maximum-label-width)
+      - [Vertical Tree Horizontal Spacing](#vertical-tree-horizontal-spacing)
+      - [Vertical Tree Multi Lines](#vertical-tree-multi-lines)
   - [Development](#development)
 
 ## Usage
@@ -156,7 +156,7 @@ $ astree vertical -i examples/multi_tree.md
 └───────────┘
 ```
 
-#### Virtual Tree Styles
+#### Vertical Tree Styles
 
 With thick lines:
 
@@ -223,7 +223,7 @@ astree vertical --input examples/with_children_2.md --style balloon2
 ╰───────╯  ╰───────╯
 ```
 
-#### Virtual Tree Maximum Label Width
+#### Vertical Tree Maximum Label Width
 
 To specify the maximum width of the label with `--width <WIDTH>`. For example:
 
@@ -241,7 +241,7 @@ astree vertical --input examples/with_long_label.md --width 10
             └─────────┘
 ```
 
-#### Virtual Tree Horizontal Spacing
+#### Vertical Tree Horizontal Spacing
 
 By default, there is a two-spaces gap between boxes. This can be set with `--spacing <SPACING>`.
 
@@ -271,7 +271,7 @@ astree vertical --input examples/with_many_children.md --width 10 --spacing 10
                     └─────────┘
 ```
 
-#### Virtual Tree Multi Lines
+#### Vertical Tree Multi Lines
 
 Title lines in your Markdown file define the tree structure. Any content under a title is automatically included as separate lines within the same structural level.
 
