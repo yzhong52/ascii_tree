@@ -1,6 +1,6 @@
 [package]
 name = "astree"
-version = "0.2.8"
+version = "0.2.9"
 license = "MIT OR Apache-2.0"
 description = " A command line tool for drawing tree structures with ascii characters"
 readme = "README.md"
