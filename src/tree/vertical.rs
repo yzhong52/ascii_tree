@@ -146,7 +146,7 @@ impl DrawableTreeNode {
         let (center_x, chhildren_left_offset, overall_width) =
             match (drawable_children.first(), drawable_children.last()) {
                 (Some(first), Some(last)) => {
-                    // If there are children, let's put the current node to middle of
+                    // If there are children, let's aling the current node to middle of
                     // all the children.
                     let connection_bar_width = children_width
                         - (first.center_x - 1)
@@ -156,9 +156,31 @@ impl DrawableTreeNode {
                     // When connection_bar_width is odd (e.g. 7), we should add 4.
                     let center_of_children = (first.center_x - 1) + (connection_bar_width + 1) / 2;
 
+                    // We see which one is bigger, the center of the current node, or the center of the chilren.
+                    // And we use that as the center of the overall node.
+                    //             v
+                    // ┌────────────────────────┐
+                    // │ L1 A Very Looong Label │
+                    // └───────────┬────────────┘
+                    //      ┌──────┴──────┐
+                    //   ┌──┴──┐  ┌───────┴────────┐
+                    //   │ L2A │  │ L2B Long Label │
+                    //   └─────┘  └────────────────┘
                     let overall_center = max(center_of_current_box, center_of_children);
+
+                    // ┌────────────────────────┐
+                    // │ L1 A Very Looong Label │
+                    // └───────────┬────────────┘
+                    //       ┌─────┴───────┐
+                    //    ┌──┴──┐  ┌───────┴────────┐
+                    //    │ L2A │  │ L2B Long Label │
+                    //    └─────┘  └────────────────┘
+                    // ↑↑↑
+                    // The additional padding to start the children node
                     let chhildren_left_offset =
                         max(0, center_of_current_box as i32 - center_of_children as i32) as usize;
+
+                    // Finally, calculate the overall width of the node including all the children.
                     let current_node_right_bufffer = node_width / 2;
                     let last_child_right_buffer = last.overall_width - last.center_x;
                     let connection_bar_right_buffer = connection_bar_width / 2;
@@ -255,12 +277,7 @@ impl DrawableTreeNode {
                 style.top_connection.unwrap_or(style.up_and_horizontal);
         }
 
-        self.render_children(
-            buffer,
-            origin,
-            style,
-            horizontal_spacing,
-        );
+        self.render_children(buffer, origin, style, horizontal_spacing);
     }
 
     fn render_children(
