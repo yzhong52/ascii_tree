@@ -288,103 +288,108 @@ impl DrawableTreeNode {
         horizontal_spacing: usize,
     ) {
         // Draw children
-        if self.children.len() != 0 {
-            // Bottom connection
-            buffer[origin.y + self.height - 1][origin.x + self.center_x] =
-                style.bottom_connection.unwrap_or(style.down_and_horizontal);
+        if self.children.len() == 0 {
+            return;
+        }
 
-            let child_origin_y = if self.children.len() > 1 {
-                // More than 1 direct children, vertical buffer needed.
-                //         ┌──────┐
-                //         │ Root │
-                //         └──┬───┘
-                //      ╔═════╩══════╗<- VERTICAL_LAYER_BUFFER
-                // ┌────┴────┐  ┌────┴────┐
-                // │ Child 1 │  │ Child 2 │
-                // └─────────┘  └─────────┘
-                origin.y + self.height + VERTICAL_LAYER_BUFFER
-            } else {
-                // With single children, no vertical buffer needed.
-                //     ┌──────┐
-                //     │ Root │
-                //     └──┬───┘
-                //   ┌────┴────┐
-                //   │ Child 1 │
-                //   └─────────┘
-                origin.y + self.height
-            };
+        // Bottom connection
+        // ┌──────┐
+        // │ Root │
+        // └──╦───┘
+        buffer[origin.y + self.height - 1][origin.x + self.center_x] =
+            style.bottom_connection.unwrap_or(style.down_and_horizontal);
 
-            let mut child_origin: Point2D<usize> = Point2D {
-                x: origin.x + self.chhildren_left_offset,
-                y: child_origin_y,
-            };
+        let child_origin_y = if self.children.len() > 1 {
+            // More than 1 direct children, vertical buffer needed.
+            //         ┌──────┐
+            //         │ Root │
+            //         └──┬───┘
+            //      ╔═════╩══════╗<- VERTICAL_LAYER_BUFFER
+            // ┌────┴────┐  ┌────┴────┐
+            // │ Child 1 │  │ Child 2 │
+            // └─────────┘  └─────────┘
+            origin.y + self.height + VERTICAL_LAYER_BUFFER
+        } else {
+            // With single children, no vertical buffer needed.
+            //     ┌──────┐
+            //     │ Root │
+            //     └──┬───┘
+            //   ┌────┴────┐
+            //   │ Child 1 │
+            //   └─────────┘
+            origin.y + self.height
+        };
 
-            for child_id in 0..self.children.len() {
-                let child = &self.children[child_id];
-                child.render_internal(buffer, &child_origin, style, horizontal_spacing);
+        let mut child_origin: Point2D<usize> = Point2D {
+            x: origin.x + self.chhildren_left_offset,
+            y: child_origin_y,
+        };
 
-                if child_id != self.children.len() - 1 {
-                    let start = child_origin.x + child.center_x + 1;
-                    let end = child_origin.x
-                        + child.overall_width
-                        + horizontal_spacing
-                        + self.children[child_id + 1].center_x;
-                    for x in start..end {
-                        if x != origin.x + self.center_x {
-                            buffer[origin.y + self.height][x] = style.horizontal;
-                        } else {
-                            //         ┌──────┐
-                            //         │ Root │
-                            //         └──┬───┘
-                            //      ┌─────╩──────┐
-                            // ┌────┴────┐↑ ┌────┴────┐
-                            // │ Child 1 │  │ Child 2 │
-                            // └─────────┘  └─────────┘
-                            buffer[origin.y + self.height][x] = style.up_and_horizontal;
-                        }
-                    }
-                    if child_id == 0 {
-                        //         ┌──────┐
-                        //         │ Root │
-                        //         └──┬───┘
-                        //    ->╔─────┴──────┐
-                        // ┌────┴────┐  ┌────┴────┐
-                        // │ Child 1 │  │ Child 2 │
-                        // └─────────┘  └─────────┘
-                        buffer[origin.y + self.height][start - 1] = style.up_and_left;
-                    }
+        for child_id in 0..self.children.len() {
+            let child = &self.children[child_id];
+            child.render_internal(buffer, &child_origin, style, horizontal_spacing);
 
-                    if child_id == self.children.len() - 2 {
-                        //         ┌──────┐
-                        //         │ Root │
-                        //         └──┬───┘
-                        //      ┌─────┴──────╗<-
-                        // ┌────┴────┐  ┌────┴────┐
-                        // │ Child 1 │  │ Child 2 │
-                        // └─────────┘  └─────────┘
-                        buffer[origin.y + self.height][end] = style.up_and_right;
-                    } else if end == origin.x + self.center_x {
-                        //                 ┌──────┐
-                        //                 │ Root │
-                        //                 └──┬───┘
-                        //       ┌────────────╬────────────┐
-                        //  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐
-                        //  │ Child 1 │  │ Child 2 │  │ Child 3 │
-                        //  └─────────┘  └─────────┘  └─────────┘
-                        buffer[origin.y + self.height][end] = style.vertical_and_horizontal;
+            if child_id != self.children.len() - 1 {
+                let start = child_origin.x + child.center_x + 1;
+                let end = child_origin.x
+                    + child.overall_width
+                    + horizontal_spacing
+                    + self.children[child_id + 1].center_x;
+                for x in start..end {
+                    if x != origin.x + self.center_x {
+                        buffer[origin.y + self.height][x] = style.horizontal;
                     } else {
-                        //                         ┌──────┐
-                        //                         │ Root │
-                        //                      ↓  └──┬───┘  ↓
-                        //         ┌────────────╦─────┴──────╦────────────┐
-                        //    ┌────┴────┐  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐
-                        //    │ Child 1 │  │ Child 2 │  │ Child 3 │  │ Child 4 │
-                        //    └─────────┘  └─────────┘  └─────────┘  └─────────┘
-                        buffer[origin.y + self.height][end] = style.down_and_horizontal;
+                        //         ┌──────┐
+                        //         │ Root │
+                        //         └──┬───┘
+                        //      ┌─────╩──────┐
+                        // ┌────┴────┐↑ ┌────┴────┐
+                        // │ Child 1 │  │ Child 2 │
+                        // └─────────┘  └─────────┘
+                        buffer[origin.y + self.height][x] = style.up_and_horizontal;
                     }
-
-                    child_origin.x += child.overall_width + horizontal_spacing;
                 }
+                if child_id == 0 {
+                    //         ┌──────┐
+                    //         │ Root │
+                    //         └──┬───┘
+                    //    ->╔─────┴──────┐
+                    // ┌────┴────┐  ┌────┴────┐
+                    // │ Child 1 │  │ Child 2 │
+                    // └─────────┘  └─────────┘
+                    buffer[origin.y + self.height][start - 1] = style.up_and_left;
+                }
+
+                if child_id == self.children.len() - 2 {
+                    //         ┌──────┐
+                    //         │ Root │
+                    //         └──┬───┘
+                    //      ┌─────┴──────╗<-
+                    // ┌────┴────┐  ┌────┴────┐
+                    // │ Child 1 │  │ Child 2 │
+                    // └─────────┘  └─────────┘
+                    buffer[origin.y + self.height][end] = style.up_and_right;
+                } else if end == origin.x + self.center_x {
+                    //                 ┌──────┐
+                    //                 │ Root │
+                    //                 └──┬───┘
+                    //       ┌────────────╬────────────┐
+                    //  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐
+                    //  │ Child 1 │  │ Child 2 │  │ Child 3 │
+                    //  └─────────┘  └─────────┘  └─────────┘
+                    buffer[origin.y + self.height][end] = style.vertical_and_horizontal;
+                } else {
+                    //                         ┌──────┐
+                    //                         │ Root │
+                    //                      ↓  └──┬───┘  ↓
+                    //         ┌────────────╦─────┴──────╦────────────┐
+                    //    ┌────┴────┐  ┌────┴────┐  ┌────┴────┐  ┌────┴────┐
+                    //    │ Child 1 │  │ Child 2 │  │ Child 3 │  │ Child 4 │
+                    //    └─────────┘  └─────────┘  └─────────┘  └─────────┘
+                    buffer[origin.y + self.height][end] = style.down_and_horizontal;
+                }
+
+                child_origin.x += child.overall_width + horizontal_spacing;
             }
         }
     }
