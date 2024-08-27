@@ -2,7 +2,9 @@
 
 A command line tool for drawing tree structures with ascii characters.
 
-- [Ascii Tree](#ascii-tree)
+  - [Installation](#installation)
+    - [Install Via Homebrew](#install-via-homebrew)
+    - [Install Via Cargo](#install-via-cargo)
   - [Usage](#usage)
     - [Input From File](#input-from-file)
     - [Horizontal Tree](#horizontal-tree)
@@ -13,13 +15,38 @@ A command line tool for drawing tree structures with ascii characters.
       - [Vertical Tree Multi Lines](#vertical-tree-multi-lines)
   - [Development](#development)
 
-## Usage
+## Installation
 
-Install from crates.io <https://crates.io/crates/astree>:
+### Install Via Homebrew
+
+Install homebrew https://brew.sh/:
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Install astree:
+
+```
+brew tap ascii-draw/ascii-tree
+brew install astree
+```
+
+### Install Via Cargo
+
+Install cargo <https://doc.rust-lang.org/cargo/getting-started/installation.html>:
+
+```
+curl https://sh.rustup.rs -sSf | sh
+```
+
+Install astree from <https://crates.io/crates/astree>:
 
 ```
 cargo install astree
 ```
+
+## Usage
 
 Check out the help message:
 
