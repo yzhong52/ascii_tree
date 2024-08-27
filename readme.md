@@ -25,7 +25,7 @@ Install homebrew https://brew.sh/:
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-Install astree:
+Install astree https://github.com/ascii-draw/homebrew-ascii-tree:
 
 ```
 brew tap ascii-draw/ascii-tree
