@@ -71,7 +71,7 @@ impl HorizontalArgs {
 
 #[derive(Parser, Debug)]
 pub struct VerticalArgs {
-    #[clap(short, long, value_enum, default_value = "thin")]
+    #[clap(short, long, value_enum, default_value_t = Style::Thin)]
     style: Style,
 
     /// The input filename or content
